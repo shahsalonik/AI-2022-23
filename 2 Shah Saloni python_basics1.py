@@ -28,3 +28,9 @@ elif(sys.argv[1] == 'D'):
             a = b
             b = c
             print(c)
+elif(sys.argv[1] == 'E'):
+    x, y = int(sys.argv[2]), int(sys.argv[3])
+    for k in range(x, y+1):
+        value = pow(k, 2) - (3*k) + 2
+        print(value)
+        
