@@ -33,4 +33,17 @@ elif(sys.argv[1] == 'E'):
     for k in range(x, y+1):
         value = pow(k, 2) - (3*k) + 2
         print(value)
-        
+elif(sys.argv[1] == 'F'):
+    a, b, c = float(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4])
+    if(a + b > c and b + c > a and a + c > b):
+        p = (a + b + c)/2
+        area = p * (p - a) * (p - b) * (p - c)
+        t_area = pow(area, 0.5)
+        print("The area of the triangle is", t_area)
+    else:
+        print("sorry, that's not a valid triangle")
+elif(sys.argv[1] == 'G'):
+    word = sys.argv[2]
+    count = {n:sum([1 for letter in word if letter == n]) for n in 'AEIOUaeiou'}
+    print(count)
+
