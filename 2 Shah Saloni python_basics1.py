@@ -18,14 +18,15 @@ elif(sys.argv[1] == 'D'):
     x = int(sys.argv[2])
     a = 1
     b = 1
-    if(x == 1):
+    if(x >= 1):
         print(a)
-    elif(x == 2):
-        print(b)
     else:
-        for i in range(0, x):
+        print("no fibonacci sequence available for that number :(")
+    if(x >= 2):
+        print(b)
+    if(x > 2):
+        for i in range(2, x):
             c = a + b
             a = b
             b = c
             print(c)
-        
