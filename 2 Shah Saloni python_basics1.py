@@ -15,9 +15,7 @@ elif(sys.argv[1] == 'C'):
             list.append(value)
     print(list)
 elif(sys.argv[1] == 'D'):
-    x = int(sys.argv[2])
-    a = 1
-    b = 1
+    x, a, b = int(sys.argv[2]), 1, 1
     if(x >= 1):
         print(a)
     else:
