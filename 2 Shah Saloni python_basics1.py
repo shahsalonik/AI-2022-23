@@ -44,6 +44,7 @@ elif(sys.argv[1] == 'F'):
         print("sorry, that's not a valid triangle")
 elif(sys.argv[1] == 'G'):
     word = sys.argv[2]
-    count = {n:sum([1 for letter in word if letter == n]) for n in 'AEIOUaeiou'}
+    word = word.lower()
+    count = {n:sum([1 for letter in word if letter == n]) for n in 'aeiou'}
     print(count)
 
