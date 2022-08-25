@@ -45,6 +45,19 @@ elif(sys.argv[1] == 'F'):
 elif(sys.argv[1] == 'G'):
     word = sys.argv[2]
     word = word.lower()
-    count = {n:sum([1 for letter in word if letter == n]) for n in 'aeiou'}
-    print(count)
+    a, e, i, o, u = 0, 0, 0, 0, 0
+    vowel_dict = {"a" : a, "e" : e, "i" : i, "o" : o, "u" : u}
 
+    for i in range(len(word)):
+        if(word[i] == "a"):
+            vowel_dict["a"] += 1
+        elif(word[i] == "e"):
+            vowel_dict["e"] += 1
+        elif(word[i] == "i"):
+            vowel_dict["i"] += 1
+        elif(word[i] == "o"):
+            vowel_dict["o"] += 1
+        elif(word[i] == "u"):
+            vowel_dict["u"] += 1
+
+    print(vowel_dict)
