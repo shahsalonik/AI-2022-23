@@ -38,16 +38,10 @@ print("#17", s.split())
 
 print("#18", len(s.split()))
 
-print("#19", list(s))
+print("#19", list(s)) 
 
-new_str = ""
-for index, value in enumerate(sorted(s)):
-    new_str += str(value)    
-print("#20", new_str)
+print("#20", ''.join(sorted(s)))
 
 print("#21", s[0:s.find(" ")])
 
-if(s == s[::-1]):
-    print("#22", True)
-else:
-    print("#22", False)
+print("#22", True if s == s[::-1] else False)
