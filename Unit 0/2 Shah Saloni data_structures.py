@@ -31,12 +31,17 @@ print("#1: %s" % count)
 #Problem 2: Sum of every 100th unique value file 1
 
 set1 = set()
+sum = 0
 
 for x in s1:
     if x not in set1:
         set1.add(x)
         print(x)
 
+list1 = list(set1)
+
+for y in list1:
+    sum += list1[y]
 
 
 
