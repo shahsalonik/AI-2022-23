@@ -1,3 +1,4 @@
+from collections import deque
 from time import perf_counter
 
 start = perf_counter()
@@ -30,23 +31,46 @@ print("#1: %s" % count)
 
 #Problem 2: Sum of every 100th unique value file 1
 
-set1 = set()
+list1 = list(set1)
 sum = 0
 
-for x in s1:
-    if x not in set1:
-        set1.add(x)
-        print(x)
+for x in range(int(len(list1)/100)):
+    print(s1[(x+1)*100])
+    sum += s1[(x+1)*100]
+print(sum)
+print("\n")
 
-list1 = list(set1)
-
-for y in list1:
-    sum += list1[y]
+#Problem 3: Total number of times each unique value in file 3 appears in files 1/2
 
 
+#Problem 4: 10 smallest numbers in file 1 in increasing order
+sorted_set = set(s1)
+small_list = []
 
+for y in range(10):
+    small_list.append(sorted_set.pop()) 
+print(small_list)
 
+#Problem 5: 10 largest numbers appearing 2+ times in file 2 in decreasing order
 
+ss2 = sorted(s2)
+new_s2 = []
+big_list = []
+index = 0
+
+for x in ss2:
+    if index != len(ss2) - 1:
+        if (ss2[index + 1] == x):
+            new_s2.append(ss2[index])
+    index += 1       
+
+st2 = sorted(set(new_s2))
+queue2 = deque(st2)
+print(queue2)
+
+for k in range(10):
+    big_list.append(queue2.pop())
+print(big_list)
 
 end = perf_counter()
 print("Total time:", end - start)
