@@ -1,12 +1,15 @@
 from collections import deque
+from multiprocessing import heap
 from time import perf_counter
+from heapq import heappush, heappop, heapify
 
 start = perf_counter()
 
 #code here
 
-f1, f2, f3 = "10kfile1.txt", "10kfile2.txt", "10kfile3.txt"
+f1, f2, f3 = "10mfile1.txt", "10mfile2.txt", "10mfile3.txt"
 s1, s2, s3 = [], [], []
+set3 = set()
 
 with open(f1) as f:
     s1 = [int(line.strip()) for line in f]
@@ -17,7 +20,25 @@ with open(f2) as f:
 with open(f3) as f:
     s3 = [int(line.strip()) for line in f]
 
-#Problem 1: Uniue values files 1 & 2
+#convert list3 to set
+set3 = set(s3)
+
+#convert to dicts
+dict1, dict2 = {}, {}
+
+for x in s1:
+    if x in dict1:
+        dict1[x] += 1
+    else:
+        dict1[x] = 1
+
+for i in s2:
+    if i in dict2:
+        dict2[i] += 1
+    else:
+        dict2[i] = 1
+
+#Problem 1: Unique values files 1 & 2
 count = 0
 
 set1 = set(s1)
@@ -31,46 +52,51 @@ print("#1: %s" % count)
 
 #Problem 2: Sum of every 100th unique value file 1
 
-list1 = list(set1)
+index = 99 
 sum = 0
+list1 = list(dict1.keys())
 
-for x in range(int(len(list1)/100)):
-    print(s1[(x+1)*100])
-    sum += s1[(x+1)*100]
-print(sum)
-print("\n")
+while index < len(list1):
+    sum += list1[index]
+    index += 100
+
+print("#2: %s" % sum)
 
 #Problem 3: Total number of times each unique value in file 3 appears in files 1/2
 
+count_3 = 0
+
+for key in set3:
+    if key in dict1.keys():
+        count_3 += dict1[key]
+    if key in dict2.keys():
+        count_3 += dict2[key]
+        
+print("#3: %s" % count_3)
 
 #Problem 4: 10 smallest numbers in file 1 in increasing order
-sorted_set = set(s1)
+
+sorted_queue = deque(set1)
 small_list = []
 
 for y in range(10):
-    small_list.append(sorted_set.pop()) 
-print(small_list)
+    small_list.append(sorted_queue.popleft()) 
+print("#4: %s" % small_list)
 
 #Problem 5: 10 largest numbers appearing 2+ times in file 2 in decreasing order
 
-ss2 = sorted(s2)
 new_s2 = []
 big_list = []
-index = 0
 
-for x in ss2:
-    if index != len(ss2) - 1:
-        if (ss2[index + 1] == x):
-            new_s2.append(ss2[index])
-    index += 1       
+for key, val in dict2.items():
+    if val > 1:
+        new_s2.append(key)
 
-st2 = sorted(set(new_s2))
-queue2 = deque(st2)
-print(queue2)
+sorted_s2 = sorted(new_s2)
 
 for k in range(10):
-    big_list.append(queue2.pop())
-print(big_list)
+    big_list.append(sorted_s2.pop())
+print("#5: %s" % big_list)
 
 end = perf_counter()
 print("Total time:", end - start)
