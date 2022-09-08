@@ -1,4 +1,3 @@
-from math import prod
 import sys
 import time
 import heapq
@@ -36,7 +35,7 @@ while c <= 4000000:
 print("#2: %s" % sum(even_fib_list))
 
 #TODO
-#Problem #3: Largest prime factor of 
+#Problem #3: Largest prime factor of 600851475143
 number = 600851475143
 factor = 2
 big_prime = 0
@@ -131,8 +130,6 @@ print("#29: %s" % len({a**b for a in range(2, 101) for b in range(2, 101)}))
 #Problem 24: 1,000,000th lexicographic permutation
 perm_set = set()
 
-
-
 #Problem 14: Longest Collatz sequence
 starting_num = 0
 
@@ -153,6 +150,7 @@ for num in range(2, 1000000):
         starting_num = num
 
 print("#14: %s" % starting_num)
+
 
 end = perf_counter()
 print("Total time:", end - start)
