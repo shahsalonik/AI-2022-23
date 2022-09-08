@@ -11,11 +11,10 @@ def is_prime(x):
     if x == 1:
         return False
 
-    for i in range(int(x**0.5)):
-        if x % (i+1) == 0:
+    for i in range(2, int(x**0.5) + 1):
+        if x % i == 0:
             return False
-        else:
-            return True
+    return True
 
 #Project Euler Problems
 
@@ -37,7 +36,7 @@ while c <= 4000000:
 print("#2: %s" % sum(even_fib_list))
 
 #TODO
-#Problem #3: Largest prime factor of 600851475143
+#Problem #3: Largest prime factor of 
 number = 600851475143
 factor = 2
 big_prime = 0
@@ -74,8 +73,21 @@ def gcd(a, b):
 #Problem #6: Natural numbers 
 print("#6:", (pow(sum(x for x in range(101)), 2)) - sum([pow(n, 2) for n in range(101)]))
 
-#Problem #8: 13 digits in 1000 digit number with the greatest product 23514624000
+#Problem #7: 1000st prime 104743
+prime_count = 1
+prime_num = 3
 
+while prime_count < 10001:
+    if is_prime(prime_num):
+        prime_count += 1
+        if prime_count == 10001:
+            break
+        prime_num += 2
+    else:
+        prime_num += 2
+print("#7: %s" % prime_num)
+
+#Problem #8: 13 digits in 1000 digit number with the greatest product 
 num_string = "731671765313306249192251196744265747423553491949349698352031277450632623957831801698480186947885184385" +\
             "861560789112949495459501737958331952853208805511125406987471585238630507156932909632952274430435576689" +\
             "664895044524452316173185640309871112172238311362229893423380308135336276614282806444486645238749303589" +\
@@ -101,15 +113,46 @@ while index < (len(num_string) - 12):
 
 print("#8: %s" % greatest_product)
 
-#Problem #7: 10001st prime 104743
-a, b, c = 0, 0, 0
+#Problem 9: Special Pythagorean Triplet
+product = 0
 
-for a in range(1001):
-    for b in range(1001):
-        for c in range(1001):
-            if (a + b + c ) == 1000 and ((a**2) + (b**2) + (c**2) == 1000):
-                print("#9: %s" % a % b % c)
+for a in range(1, 1000):
+    for b in range(a + 1, 1000):
+        c = 1000 - a - b
+        if (a**2 + b**2) == c**2:
+            if a + b + c == 1000:
+                product = a*b*c
+print("#9: %s" % product)
 
+#Problem 29: a^b
+
+print("#29: %s" % len({a**b for a in range(2, 101) for b in range(2, 101)}))
+
+#Problem 24: 1,000,000th lexicographic permutation
+perm_set = set()
+
+
+
+#Problem 14: Longest Collatz sequence
+starting_num = 0
+
+for num in range(2, 1000000):
+    longest_length = 1
+    current_length = 0
+    seq_num = num
+    while seq_num != 1:
+        if seq_num % 2 == 0:
+            seq_num = seq_num/2
+            current_length += 1
+        else:
+            seq_num = (3*seq_num) + 1
+            current_length += 1
+    
+    if current_length > longest_length:
+        longest_length = current_length
+        starting_num = num
+
+print("#14: %s" % starting_num)
 
 end = perf_counter()
 print("Total time:", end - start)
