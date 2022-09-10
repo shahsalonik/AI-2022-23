@@ -34,7 +34,6 @@ while c <= 4000000:
 
 print("#2: %s" % sum(even_fib_list))
 
-#TODO
 #Problem #3: Largest prime factor of 600851475143
 number = 600851475143
 big_prime = 0
@@ -59,12 +58,23 @@ print("#4: %s" % product)
 
 #TODO
 #Problem #5: Universal GCD
-def gcd(a, b):
-    while b != 0:
-        t = b
-        b = a % b
-        a = t
-    return a
+def gcd(x, y):
+    while y != 0:
+        t = y
+        y = x % y
+        x = t
+    return x
+
+def lcm(a, b):
+    return a // gcd(a, b) * b
+
+def range_lcm(start, end):
+    lcm_num = 1
+    for x in range(start, end + 1):
+        lcm_num = lcm(x, lcm_num)
+    return lcm_num
+
+print("#5: %s" % range_lcm(1, 20))
 
 #Problem #6: Natural numbers 
 print("#6:", (pow(sum(x for x in range(101)), 2)) - sum([pow(n, 2) for n in range(101)]))
@@ -166,62 +176,86 @@ for row in range(16):
             max_product = diag2
 print("#11: %s" % max_product)
 
+#Problem 18: max path sum
+data = [[75],
+       [95, 64],
+       [17, 47, 82],
+       [18, 35, 87, 10],
+       [20,  4, 82, 47, 65],
+       [19,  1, 23, 75,  3, 34],
+       [88,  2, 77, 73,  7, 63, 67],
+       [99, 65,  4, 28,  6, 16, 70, 92],
+       [41, 41, 26, 56, 83, 40, 80, 70, 33],
+       [41, 48, 72, 33, 47, 32, 37, 16, 94, 29],
+       [53, 71, 44, 65, 25, 43, 91, 52, 97, 51, 14],
+       [70, 11, 33, 28, 77, 73, 17, 78, 39, 68, 17, 57],
+       [91, 71, 52, 38, 17, 14, 91, 43, 58, 50, 27, 29, 48],
+       [63, 66,  4, 68, 89, 53, 67, 30, 73, 16, 69, 87, 40, 31],
+       [ 4, 62, 98, 27, 23,  9, 70, 98, 73, 93, 38, 53, 60,  4, 23]]
+
+max_path_sums = []
+
+def find_max(triangle, x, y, sum):
+    sum += triangle[x][y]
+    if x == 14:
+        max_path_sums.append(sum)
+    else:
+        find_max(triangle, x + 1, y + 1, sum)
+        find_max(triangle, x + 1, y, sum)
+
+find_max(data, 0, 0, 0)
+
+max_sum = 0
+
+for n in max_path_sums:
+    if n > max_sum:
+        max_sum = n
+
+print("#18: %s" % max_sum)
+
+#Problem 29: a^b
+print("#29: %s" % len({a**b for a in range(2, 101) for b in range(2, 101)}))
+
 #Problem 12: first triangle number with 500+ divisors
 max_length = 0
 divisor_dict = {1: "1", 3: "1,3", 6: "1,2,3,6", 10: "1,2,5,10", 15: "1,3,5,15", 21: "1,3,7,21", 28: "1,2,4,7,14,28"}
-starting_num = 36
+starting_num = 28
 index = 8
 
 while max_length < 500:
-    
+    next_num = starting_num + index
 
-#Problem 29: a^b
+    starting_num = next_num
+    index += 1
 
-print("#29: %s" % len({a**b for a in range(2, 101) for b in range(2, 101)}))
-
-#Problem 24: 1,000,000th lexicographic permutation
-perm_set = set()
-
+print("len", int(len(divisor_dict[28])/2))
 
 #Problem 14: Longest Collatz sequence
-col_dict = {1:1}
+solved = {1:1}
 max_length = 0
+seq_len = 0
+seq_num = 0
 
-for num in range(2, 1000000):
-    if num not in col_dict.keys():
-        length = 0
-        cur_num = num
-        while cur_num not in col_dict:
-            if cur_num % 2 == 0:
-                cur_num /= 2
-            else:
-                cur_num = (3*cur_num) + 1
-            length += 1
-        col_dict[num] = length + col_dict[cur_num]
-
-    if col_dict[num] > col_dict[max_length]:
-        max_length = num
-print("#14: %s" % max_length)
-
-
-for num in range(2, 1000000):
-    longest_length = 1
-    current_length = 0
+def find_seq(num):
+    length = 0
     seq_num = num
-    while seq_num != 1:
+
+    while seq_num not in solved:
         if seq_num % 2 == 0:
-            seq_num = seq_num/2
-            current_length += 1
+            seq_num /= 2
         else:
-            seq_num = (3*seq_num) + 1
-            current_length += 1
-    
-    if current_length > longest_length:
-        longest_length = current_length
-        starting_num = num
+            seq_num = (3 * seq_num) + 1
+        length += 1
 
-print("#14: %s" % starting_num)
+    solved[num] = length + solved[seq_num]
 
+for col in range(2, 1000000):
+    if col not in solved.keys():
+        find_seq(col)
+    if solved[max_length] < solved[col]:
+        max_length = col
+
+print("#14: %s" % max_length)
 
 end = perf_counter()
 print("Total time:", end - start)
