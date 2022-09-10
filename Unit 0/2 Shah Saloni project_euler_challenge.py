@@ -35,8 +35,7 @@ while c <= 4000000:
 print("#2: %s" % sum(even_fib_list))
 
 #Problem #3: Largest prime factor of 600851475143
-number = 600851475143
-big_prime = 0
+number, big_prime = 600851475143, 0
 
 for num in range(2, int(number**0.5)):
     if number % num == 0:
@@ -56,7 +55,6 @@ for num1 in range(999, 1, -1):
                 product = s
 print("#4: %s" % product)
 
-#TODO
 #Problem #5: Universal GCD
 def gcd(x, y):
     while y != 0:
@@ -80,8 +78,7 @@ print("#5: %s" % range_lcm(1, 20))
 print("#6:", (pow(sum(x for x in range(101)), 2)) - sum([pow(n, 2) for n in range(101)]))
 
 #Problem #7: 1000st prime 104743
-prime_count = 1
-prime_num = 3
+prime_count, prime_num = 1, 3
 
 while prime_count < 10001:
     if is_prime(prime_num):
@@ -105,8 +102,7 @@ num_string = "731671765313306249192251196744265747423553491949349698352031277450
             "544436298123098787992724428490918884580156166097919133875499200524063689912560717606058861164671094050" +\
             "7754100225698315520005593572972571636269561882670428252483600823257530420752963450"
 
-index = 0
-greatest_product = 0
+index, greatest_product = 0, 0
 
 while index < (len(num_string) - 12):
     product = 1
@@ -176,6 +172,31 @@ for row in range(16):
             max_product = diag2
 print("#11: %s" % max_product)
 
+#Problem 14: Longest Collatz sequence by a number under 1 million
+solved = {1: 1}
+max_length, seq_len, seq_num = 1, 0, 0
+
+def generate_seq(num):
+    length = 0
+    seq_num = num
+
+    while seq_num not in solved:
+        if seq_num % 2 == 0:
+            seq_num /= 2
+        else:
+            seq_num = (3 * seq_num) + 1
+        length += 1
+
+    solved[num] = length + solved[seq_num]
+
+for col in range(2, 1000000):
+    if col not in solved.keys():
+        generate_seq(col)
+    if solved[max_length] < solved[col]:
+        max_length = col
+
+print("#14: %s" % max_length)
+
 #Problem 18: max path sum
 data = [[75],
        [95, 64],
@@ -193,69 +214,40 @@ data = [[75],
        [63, 66,  4, 68, 89, 53, 67, 30, 73, 16, 69, 87, 40, 31],
        [ 4, 62, 98, 27, 23,  9, 70, 98, 73, 93, 38, 53, 60,  4, 23]]
 
-max_path_sums = []
+max_sums = set()
 
-def find_max(triangle, x, y, sum):
-    sum += triangle[x][y]
+def find_max(grid, x, y, sum):
+    sum += grid[x][y]
     if x == 14:
-        max_path_sums.append(sum)
+        max_sums.add(sum)
     else:
-        find_max(triangle, x + 1, y + 1, sum)
-        find_max(triangle, x + 1, y, sum)
+        find_max(grid, x + 1, y + 1, sum)
+        find_max(grid, x + 1, y, sum)
 
 find_max(data, 0, 0, 0)
 
 max_sum = 0
 
-for n in max_path_sums:
+for n in max_sums:
     if n > max_sum:
         max_sum = n
 
 print("#18: %s" % max_sum)
 
+#Problem 28: Sum of the diagonals of a 1001 x 1001 spiral
+corner_nums = list(range(1, 1002002))
+index, sum, step = 0, 1, 2
+
+while corner_nums[index] != 1002001:
+    for corner_num in range(4):
+        index += step
+        sum += corner_nums[index]
+    step += 2
+
+print("#28: %s" % sum)
+
 #Problem 29: a^b
 print("#29: %s" % len({a**b for a in range(2, 101) for b in range(2, 101)}))
-
-#Problem 12: first triangle number with 500+ divisors
-max_length = 0
-divisor_dict = {1: "1", 3: "1,3", 6: "1,2,3,6", 10: "1,2,5,10", 15: "1,3,5,15", 21: "1,3,7,21", 28: "1,2,4,7,14,28"}
-starting_num = 28
-index = 8
-
-while max_length < 500:
-    next_num = starting_num + index
-
-    starting_num = next_num
-    index += 1
-
-print("len", int(len(divisor_dict[28])/2))
-
-#Problem 14: Longest Collatz sequence
-solved = {1:1}
-max_length = 0
-seq_len = 0
-seq_num = 0
-
-def find_seq(num):
-    length = 0
-    seq_num = num
-
-    while seq_num not in solved:
-        if seq_num % 2 == 0:
-            seq_num /= 2
-        else:
-            seq_num = (3 * seq_num) + 1
-        length += 1
-
-    solved[num] = length + solved[seq_num]
-
-for col in range(2, 1000000):
-    if col not in solved.keys():
-        find_seq(col)
-    if solved[max_length] < solved[col]:
-        max_length = col
-
-print("#14: %s" % max_length)
 
 end = perf_counter()
 print("Total time:", end - start)
