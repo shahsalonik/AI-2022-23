@@ -10,7 +10,10 @@ def find_goal(board):
     sorted_board = sorted(board)
     goal_state = sorted_board[1:]
     goal_state.append(".")
-    return goal_state
+    return ''.join(goal_state)
 
-print_puzzle(2, "A.CB")
-find_goal("A.CB")
+def get_children(state):
+    blank_index = state.index(".")
+    print(blank_index)
+
+get_children("A.CB")
