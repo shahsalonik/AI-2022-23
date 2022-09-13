@@ -16,4 +16,7 @@ def get_children(state):
     blank_index = state.index(".")
     print(blank_index)
 
+#left right +1, -1
+#up,down +size, -size
+
 get_children("A.CB")
