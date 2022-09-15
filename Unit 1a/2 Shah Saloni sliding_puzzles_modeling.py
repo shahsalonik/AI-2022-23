@@ -1,4 +1,8 @@
-with open("slide_puzzle_tests.txt") as f:
+import sys
+
+filename = sys.argv[1]
+
+with open(filename) as f:
     line_list = [line.strip() for line in f]
 
 def print_puzzle(size, board):
@@ -33,7 +37,7 @@ count = 0
 for x in line_list:
     size = int(x[0])
     print("Line", count, "start state:")
-    print_puzzle(size, x[2:]) 
+    print_puzzle(size, x[2:])  
     print("Line", count, "goal state:", find_goal(x[2:]))
     print("Line", count, "children:", get_children(x), "\n")
     count += 1
