@@ -24,7 +24,7 @@ def get_children(state):
         children.append(board[:blank_index] + board[blank_index + 1] + "." + board[blank_index + 2:])
     if blank_index >= size: #blank swap up
         children.append(board[:blank_index - size] + "." + board[blank_index - size + 1:blank_index] + board[blank_index - size] + board[blank_index + 1:]) 
-    if blank_index <= (size * (size - 1)): #blank swap
+    if blank_index <= (size * (size - 1)): #blank swap down
         children.append(board[:blank_index] + board[blank_index + size] + board[blank_index + 1:blank_index + size] + "." + board[blank_index + size + 1:])
     return children
 
