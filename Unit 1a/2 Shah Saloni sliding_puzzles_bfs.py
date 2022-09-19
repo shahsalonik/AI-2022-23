@@ -1,3 +1,4 @@
+from collections import deque
 import queue
 import sys
 from time import perf_counter
@@ -21,13 +22,13 @@ def get_children(state):
     blank_index = int(board.index("."))
     children = []
     if blank_index % size != 0: #blank swap right
-        children.append(board[:blank_index - 1] + "." + board[blank_index - 1] + board[blank_index + 1:])
+        children.append(str(size) + " " + board[:blank_index - 1] + "." + board[blank_index - 1] + board[blank_index + 1:])
     if (blank_index + 1) % size != 0: #blank swap left
-        children.append(board[:blank_index] + board[blank_index + 1] + "." + board[blank_index + 2:])
+        children.append(str(size) + " " + board[:blank_index] + board[blank_index + 1] + "." + board[blank_index + 2:])
     if blank_index >= size: #blank swap up
-        children.append(board[:blank_index - size] + "." + board[blank_index - size + 1:blank_index] + board[blank_index - size] + board[blank_index + 1:]) 
+        children.append(str(size) + " " + board[:blank_index - size] + "." + board[blank_index - size + 1:blank_index] + board[blank_index - size] + board[blank_index + 1:]) 
     if blank_index < (size * (size - 1)): #blank swap down
-        children.append(board[:blank_index] + board[blank_index + size] + board[blank_index + 1:blank_index + size] + "." + board[blank_index + size + 1:])
+        children.append(str(size) + " " + board[:blank_index] + board[blank_index + size] + board[blank_index + 1:blank_index + size] + "." + board[blank_index + size + 1:])
     return children
 
 def BFS(start_node):
@@ -39,6 +40,7 @@ def BFS(start_node):
         v = fringe.popleft()
         print(v[0])
         print(v[1])
+        print(find_goal(v[1]))
         if v[1] == find_goal(v[1]):
             return v
         for x in get_children(v[1]):
