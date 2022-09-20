@@ -38,10 +38,7 @@ def BFS(start_node):
     visited.add(start_node)
     while fringe:
         v = fringe.popleft()
-        print(v[0])
-        print(v[1])
-        print(find_goal(v[1]))
-        if v[1] == find_goal(v[1]):
+        if v[1][2::] == find_goal(v[1]):
             return v
         for x in get_children(v[1]):
             if x not in visited:
@@ -56,5 +53,18 @@ for x in line_list:
     start = perf_counter()
     solved_board = BFS(board)
     end = perf_counter()
-    print("Line", count, ":", solved_board,  ",",  solved_board[0], "moves", "found in", end - start)
+    print("Line", count, ": %s" % solved_board[1][2::] + ",",  solved_board[0], "moves", "found in", end - start)
     count += 1
+    
+#Part 2: BFS Brainteasers
+'''
+1. 
+
+2. 12345687. When you plug it into the BFS method, it returns a NoneType, which means that it went through the length of the queue and visited, and couldn't find a solution to it.
+
+3. 
+
+4.
+
+5.
+'''
