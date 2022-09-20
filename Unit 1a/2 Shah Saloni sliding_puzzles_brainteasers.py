@@ -39,7 +39,9 @@ def BFS(start_node):
     size, board = start_node.split()
     print(size)
 
-    found = find_goal(start_node[2:])
+    found = find_goal(start_node)
+    print(found)
+    found = size + " " + found
     print(found)
     fringe.append((0, found))
     visited.add(found)
@@ -62,10 +64,11 @@ for x in line_list:
     start = perf_counter()
     solved_board = BFS(board)
     end = perf_counter()
-    print("Line", count, ": %s" % solved_board[1][2::] + ",",  solved_board[0], "moves", "found in", end - start)
+    #print("Line", count, ": %s" % solved_board[1][2::] + ",",  solved_board[0], "moves", "found in", end - start)
     count += 1
 
 print(len(ten_list))
+
 
 total_end = perf_counter()
 print("Total time: ", total_end - total_start)
