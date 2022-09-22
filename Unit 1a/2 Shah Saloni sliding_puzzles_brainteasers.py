@@ -77,7 +77,9 @@ print("Total time: ", total_end - total_start)
 '''
 1. 2x2 - 12, 3x3 - 181440
 2. 12345687. When you plug it into the BFS method, it returns a NoneType, which means that it went through the length of the queue and visited, and couldn't find a solution to it.
-3. 
-4. 
-5.
+3. 286
+4. 2 hardest 3x3 puzzles - each have 31 moves to solve them
+HFGBEDC.A path - ['HFGBEDC.A', 'HFGB.DCEA', 'H.GBFDCEA', '.HGBFDCEA', 'BHG.FDCEA', 'BHGCFD.EA', 'BHGCFDE.A', 'BHGCFDEA.', 'BHGCF.EAD', 'BH.CFGEAD', 'B.HCFGEAD', 'BFHC.GEAD', 'BFH.CGEAD', 'BFHECG.AD', 'BFHECGA.D', 'BFHECGAD.', 'BFHEC.ADG', 'BF.ECHADG', 'B.FECHADG', 'BCFE.HADG', 'BCF.EHADG', 'BCFAEH.DG', 'BCFAEHD.G', 'BCFAEHDG.', 'BCFAE.DGH', 'BC.AEFDGH', 'B.CAEFDGH', '.BCAEFDGH', 'ABC.EFDGH', 'ABCDEF.GH', 'ABCDEFG.H', 'ABCDEFGH.']
+FDGHE.CBA path - ['FDGHE.CBA', 'FD.HEGCBA', 'F.DHEGCBA', 'FEDH.GCBA', 'FED.HGCBA', 'FEDCHG.BA', 'FEDCHGB.A', 'FEDC.GBHA', 'FEDCG.BHA', 'FEDCGABH.', 'FEDCGAB.H', 'FEDC.ABGH', '.FDCEABGH', 'CFD.EABGH', 'CFDBEA.GH', 'CFDBEAG.H', 'CFDB.AGEH', 'CFDBA.GEH', 'CF.BADGEH', 'C.FBADGEH', '.CFBADGEH', 'BCF.ADGEH', 'BCFA.DGEH', 'BCFAD.GEH', 'BC.ADFGEH', 'BC.ADFGEH', 'B.CADFGEH', '.BCADFGEH', 'ABC.DFGEH', 'ABCD.FGEH', 'ABCDEFG.H', 'ABCDEFGH.']
+5. My program gets bogged down at around line 22.
 '''
