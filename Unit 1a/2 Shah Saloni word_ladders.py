@@ -92,9 +92,19 @@ for x in puzzle_list:
     else:
         print("Line: %s" % count)
         print("Length is: %s" % len(ladder))
-        print(ladder)
+        for y in ladder:
+            print(y)
         print("\n")
     count += 1
 
 end = perf_counter()
 print("Time to solve all of these puzzles was: ", end - start)
+
+'''
+Part 2: Brainteasers
+1. Number of singletons: 1568
+2. Number of words in the biggest clump:  1625
+3. Number of clumps: 450
+4. Max path length: 28
+['vaguer', 'valuer', 'values', 'valves', 'calves', 'carves', 'carver', 'carder', 'harder', 'herder', 'header', 'heaver', 'beaver', 'braver', 'braves', 'braces', 'traces', 'tracts', 'traits', 'trains', 'brains', 'braids', 'brands', 'grands', 'grants', 'grafts', 'crafts', 'crafty']
+'''
