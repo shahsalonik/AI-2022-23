@@ -3,7 +3,7 @@ import queue
 import sys
 from time import perf_counter
 
-start = perf_counter()
+data_structure_start = perf_counter()
 
 with open("words_06_letters.txt") as f:
     dict_list = [line.strip() for line in f]
@@ -43,6 +43,13 @@ def check_word_diff(word1, word2):
             diff_letters += 1
     
     return diff_letters
+
+data_structure_end = perf_counter()
+print("Total time to create the data structure was:", data_structure_end - data_structure_start)
+print("There are %s" % len(dict_list), "words in this dict.")
+
+start = perf_counter()
+
 
 #should take in each line and return both words (split)
 def goal_test(one_line):
@@ -87,7 +94,14 @@ dict = create_dict(dict_list)
 for x in puzzle_list:
     initial, final = goal_test(x)
     ladder = word_ladders(initial, final, dict)
-    print(ladder)
+    if ladder == "No Solution!":
+        print("Line: %s" % count)
+        print(ladder)
+    else:
+        print("Line: %s" % count)
+        print("Length is: %s" % len(ladder))
+        print(ladder)
+        print("\n")
     count += 1
 
 end = perf_counter()
