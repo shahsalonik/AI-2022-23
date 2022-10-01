@@ -139,3 +139,12 @@ for y in bfs_solved_board:
 
 total_end = perf_counter()
 print("Total Time: %s" % (total_end - total_start))
+
+'''
+Part 2 - DFS Questions:
+1. Our goal for sliding puzzles was to find the shortest possible solution. DFS doesn't do that for sliding puzzles because
+it has to iterate through so many different states and the number of moves is unknown. On the other hand, for sliding puzzles, 
+DFS worked fine because we have a list of hardcoded moves, so DFS only has to iterate through those and its children.
+2. Yes, there could be a time where DFS was preferable to BFS, especially in situations where the goal is to find the longest
+possible path. DFS has to go through the longest path every time, so it would be an easier method to use.
+'''
