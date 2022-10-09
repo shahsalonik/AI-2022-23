@@ -90,40 +90,29 @@ def taxicab(state):
 
 def a_star(puzzle):
     closed = set()
-    start_node = (puzzle, 0, taxicab(puzzle))
-    fringe = [start_node]
+    start_node = ((taxicab(puzzle), 0, puzzle))
+    fringe = []
     heapify(fringe)
+    heappush(fringe, start_node)
 
-    while fringe:
+    while len(fringe) > 0:
         v = heappop(fringe)
-        if v[0][2::] == find_goal(v[0]):
+
+        if v[2][2::] == find_goal(v[2]):
             return v
-        if v[0] not in closed:
-            closed.add(v[0])
-            for c in get_children(v[0]):
+        if v[2] not in closed:
+            closed.add(v[2])
+            for c in get_children(v[2]):
                 if c not in closed:
-                    temp = (c, v[1] + 1, v[1] + 1 + taxicab(c))
+                    temp = (( v[1] + 1 + taxicab(c), v[1] + 1, c))
                     heappush(fringe, temp)
     return None
-
 
 
 count = 0
 
 for puzzle in line_list:
-    print(puzzle, is_solvable(puzzle))
-
-'''
-for puzzle in line_list:
-    start = perf_counter()
-    can_solve = is_solvable(puzzle)
-    end = perf_counter()
-    if can_solve == False:
-        print("Line", count, ":", puzzle, ", no solution determined in ", end - start, "seconds")
+    if is_solvable(puzzle):
+        print(puzzle, a_star(puzzle))
     else:
-        a_start = perf_counter()
-        solved = a_star(puzzle)
-        a_end = perf_counter()
-        print("Line", count, ":", puzzle, ", A* - ", solved, "moves in ", a_end - a_start, "seconds")
-    count += 1
-'''
+        print(puzzle, "no solution lol")
