@@ -3,7 +3,7 @@ import sys
 from time import perf_counter
 
 #sys.argv[1]
-filename = "slide_puzzle_tests_2.txt"
+filename = sys.argv[1]
 
 with open(filename) as f:
     line_list = [line.strip() for line in f]
