@@ -104,7 +104,7 @@ def a_star(puzzle):
             closed.add(v[2])
             for c in get_children(v[2]):
                 if c not in closed:
-                    temp = (( v[1] + 1 + taxicab(c), v[1] + 1, c))
+                    temp = ((v[1] + 1 + taxicab(c), v[1] + 1, c))
                     heappush(fringe, temp)
     return None
 
@@ -112,7 +112,16 @@ def a_star(puzzle):
 count = 0
 
 for puzzle in line_list:
-    if is_solvable(puzzle):
-        print(puzzle, a_star(puzzle))
+    start = perf_counter()
+    can_solve = is_solvable(puzzle)
+    end = perf_counter()
+
+    if can_solve:
+        a_start = perf_counter()
+        solved_board = a_star(puzzle)
+        a_end = perf_counter()
+        print("Line", count, ":", puzzle[2::], ", A* -", solved_board[1], "moves in", a_end - a_start, "seconds")
     else:
-        print(puzzle, "no solution lol")
+        print("Line", count, ":", puzzle[2::], ", no solution determined in", end - start, "seconds")
+    
+    count += 1
