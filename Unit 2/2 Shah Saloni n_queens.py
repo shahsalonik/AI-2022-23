@@ -3,11 +3,29 @@ from time import perf_counter
 
 start = perf_counter()
 
+def test_solution(state):
+    for var in range(len(state)):
+        left = state[var]
+        middle = state[var]
+        right = state[var]
+        for compare in range(var + 1, len(state)):
+            left -= 1
+            right += 1
+            if state[compare] == middle:
+                print(var, "middle", compare)
+                return False
+            if left >= 0 and state[compare] == left:
+                print(var, "left", compare)
+                return False
+            if right < len(state) and state[compare] == right:
+                print(var, "right", compare)
+                return False
+    return True
+
 def generate_board(size):
     board = []
     for x in range(size):
         board.append(None)
-
     return board
 
 def goal_test(state):
@@ -22,19 +40,24 @@ def get_next_unassigned_var(state):
 def get_sorted_values(state, var):
     children = []
     size = len(state)
-    is_valid = True
 
     for i in range(size):
+        is_valid = True
+        index = 0
+
         if i in state:
             is_valid = False
-        if (i - 1) != 0:
-            if (i - 1) in state:
+
+        while is_valid and (var - index) >= 0:
+            if (state[var - index] == i - index):
                 is_valid = False
-        if (i + 1) < size:
-            if (i + 1) in state:
+            if (state[var - index] == i + index):
                 is_valid = False
+            index += 1
+
         if is_valid:
             children.append(i)
+    
     return children
             
 
@@ -54,6 +77,18 @@ end = perf_counter()
 
 print(generate_board(4))
 board = generate_board(4)
+print(csp_backtracking(board))
+
+print(generate_board(8))
+board = generate_board(8)
+print(csp_backtracking(board))
+
+print(generate_board(9))
+board = generate_board(9)
+print(csp_backtracking(board))
+
+print(generate_board(10))
+board = generate_board(10)
 print(csp_backtracking(board))
 
 print("Total time: %s" % (end - start))
