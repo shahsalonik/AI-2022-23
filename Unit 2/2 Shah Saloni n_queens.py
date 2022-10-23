@@ -23,16 +23,18 @@ def get_sorted_values(state, var):
     children = []
     size = len(state)
     is_valid = True
-    for n in range(size):
-        count = 0
-        if n in state:
+
+    for i in range(size):
+        if i in state:
             is_valid = False
-        while is_valid == True and var == n - count:
-            if ((n - count) >= 0) :
+        if (i - 1) != 0:
+            if (i - 1) in state:
                 is_valid = False
-            count += 1
-    if is_valid:
-        children.append(n)
+        if (i + 1) < size:
+            if (i + 1) in state:
+                is_valid = False
+        if is_valid:
+            children.append(i)
     return children
             
 
