@@ -84,17 +84,17 @@ def csp_backtracking(state, column, diagonal, diagonal2):
 
 
 start = perf_counter()
+
+#31x31
 board, column, diagonal, diagonal2 = generate_board(31)
 print(csp_backtracking(board, column, diagonal, diagonal2))
-end = perf_counter()
 print(test_solution(csp_backtracking(board, column, diagonal, diagonal2)))
 
-print("Total time: %s" % (end - start))
-
-start = perf_counter()
+#35x35
 board, column, diagonal, diagonal2 = generate_board(35)
 print(csp_backtracking(board, column, diagonal, diagonal2))
-end = perf_counter()
 print(test_solution(csp_backtracking(board, column, diagonal, diagonal2)))
+
+end = perf_counter()
 
 print("Total time: %s" % (end - start))
