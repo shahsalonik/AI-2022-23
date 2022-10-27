@@ -1,7 +1,6 @@
-import sys
 import random
 from time import perf_counter
-from heapq import heapify, heappop, heappush
+from heapq import heapify
 
 def test_solution(state):
     for var in range(len(state)):
@@ -110,7 +109,7 @@ print("\n***NEXT BOARD***")
 board = inc_repair_generate_board(35)
 conflict = [inc_repair_conflicts(board, x) for x in range(len(board))]
 solved = inc_repair_backtracking(board, conflict)
-print(solved)
+print("Solved board state: ", solved)
 print(test_solution(solved))
 
 end = perf_counter()
