@@ -33,21 +33,35 @@ def inc_repair_goal_test(conflicts_sum):
         return True
     return False
 
-def conflicts(state, index):
-    return ""
+def inc_repair_conflicts(state, index):
+    size = len(state)
+
+    conf = state.count(state[index]) - 1
+    conf_diff = index - state[index]
+
+    diff = [i - state[i] for i in range(size)]
+
+    conf += diff.count(conf_diff) - 1
+    conf_sum = index + state[index]
+
+    sum_diff = [i + state[i] for i in range(size) if state[i] != None]
+
+    conf += sum_diff.count(conf_sum) - 1
+
+    return conf
 
 #pick from middle bc it's more efficient
 #use a min heap 
-def inc_repair_get_next_unassigned_var(state):
+def inc_repair_get_next_unassigned_var(state, conflict):
     size = len(state)
-    heap_values =[(abs(size // 2 - index), index) for index in range(size) if state[index] == None]
-    heapify(heap_values)
-    return heappop(heap_values)[1]
+    most_conflicts = max(conflict)
+    calc_conflict = [x for x in range(size) if conflict[x] == most_conflicts]
+    return random.choice(calc_conflict)
 
 def inc_repair_get_sorted_values(state, var):
     index = state[var]
     children = []
-    heapify(children)
+    
     size = len(state)
 
     for i in range(size):
@@ -55,9 +69,10 @@ def inc_repair_get_sorted_values(state, var):
             new_state = state.copy()
             new_state[var] = i
             
-            conflict = conflicts(new_state, var)
-            heappush((conflict, i))
-
+            conflict = inc_repair_conflicts(new_state, var)
+            children.append((conflict, i))
+    
+    heapify(children)
     return children
 
 def inc_repair_backtracking(state, conflicts):
@@ -68,97 +83,36 @@ def inc_repair_backtracking(state, conflicts):
         return state
 
     print("Current board state: ", state)
-    print("Conflicts: ", total_conflicts)
+    print("Conflicts: ", total_conflicts, "\n")
 
     var = inc_repair_get_next_unassigned_var(state, conflicts)
 
-    for conf, val in inc_repair_get_sorted_values(state, conflicts):
+    for conf, val in inc_repair_get_sorted_values(state, var):
         new_state = state.copy()
         new_state[var] = val
 
-        result = inc_repair_backtracking(new_state, [**SOME CONDITION** for i in range(len(state))])
+        conf_sum = [inc_repair_conflicts(new_state, x) for x in range(size)]
+        result = inc_repair_backtracking(new_state, conf_sum)
 
         if result is not None:
             return result
     return None
-
-#########NORMAL BACKTRACKING############
-
-def generate_board(size):
-    board = [None for x in range(size)]
-    column = [None for x in range(size)]
-    diagonal = [None for x in range(size * 2 - 1)]
-    diagonal2 = diagonal.copy()
-    return board, column, diagonal, diagonal2
-
-def goal_test(state):
-    if None not in state:
-        return True
-    return False
-
-#pick from middle bc it's more efficient
-#use a min heap 
-def get_next_unassigned_var(state):
-    size = len(state)
-    heap_values =[(abs(size // 2 - index), index) for index in range(size) if state[index] == None]
-    heapify(heap_values)
-    return heappop(heap_values)[1]
-
-def get_sorted_values(state, var, column, left_diag, right_diag):
-    children = []
-    size = len(state)
-    index = 0
-
-    #check above middle row first
-    for i in range(size // 2, size):
-        if (i not in state) and (column[i] == None) and (left_diag[var + i] == None) and (right_diag[var - i - 1 + size] == None):
-            children.append(i)
-    #check middle row and below 
-    #need to check columns and diagonals
-    for i in range(size // 2 - 1, -1, -1):
-        if (i not in state) and (column[i] == None) and (left_diag[var + i] == None) and (right_diag[var - i - 1 + size] == None):
-            children.insert(index, i)
-            index += 2
-    
-    #reversed list works better
-    return children[::-1]
-
-def csp_backtracking(state, column, diagonal, diagonal2):
-    size = len(state)
-    if goal_test(state):
-        return state
-    var = get_next_unassigned_var(state)
-    for val in get_sorted_values(state, var, column, diagonal, diagonal2):
-        new_state = state.copy()
-        new_column = column.copy()
-        new_diagonal = diagonal.copy()
-        new_diagonal2 = diagonal2.copy()
-
-        new_state[var] = val
-        new_column[val] = val
-        new_diagonal[var + val] = val
-        new_diagonal2[var - 1 - val + size] = val
-
-        result = csp_backtracking(new_state, new_column, new_diagonal, new_diagonal2)
-
-        if result is not None:
-            return result
-    return None
-
 
 start = perf_counter()
 
-'''
-#31x31
-board, column, diagonal, diagonal2 = generate_board(31)
-print(csp_backtracking(board, column, diagonal, diagonal2))
-print(test_solution(csp_backtracking(board, column, diagonal, diagonal2)))
+board = inc_repair_generate_board(31)
+conflict = [inc_repair_conflicts(board, x) for x in range(len(board))]
+solved = inc_repair_backtracking(board, conflict)
+print(solved)
+print(test_solution(solved))
 
-#35x35
-board, column, diagonal, diagonal2 = generate_board(35)
-print(csp_backtracking(board, column, diagonal, diagonal2))
-print(test_solution(csp_backtracking(board, column, diagonal, diagonal2)))
-'''
+print("\n***NEXT BOARD***")
+board = inc_repair_generate_board(35)
+conflict = [inc_repair_conflicts(board, x) for x in range(len(board))]
+solved = inc_repair_backtracking(board, conflict)
+print(solved)
+print(test_solution(solved))
+
 end = perf_counter()
 
 print("Total time: %s" % (end - start))
