@@ -53,6 +53,30 @@ def print_board(state):
         current_block += "|"
         print(current_block)
 
+def goal_test(state):
+    if "." in state:
+        return False
+    return True
+
+def get_next_unassigned_var(state):
+    blank_index = state.index(".")
+    return blank_index
+
+def get_sorted_values(state, var):
+    return "TODO"
+
+def csp_backtracking(state):
+    if goal_test(state):
+        return state
+    var = get_next_unassigned_var(state)
+    for val in get_sorted_values(state, var):
+        new_state = state.copy()
+        new_state[var] = val
+        result = csp_backtracking(new_state)
+        if result is not None:
+            return result
+    return None
+
 for x in line_list:
     N, symbol_set, subblock_width, subblock_height, symbol_set = board_setup(x)
     print(subblock_width, " ", subblock_height)
