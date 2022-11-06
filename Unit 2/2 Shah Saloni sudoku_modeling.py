@@ -3,6 +3,8 @@ from time import perf_counter
 
 N, subblock_height, subblock_width = 0, 0, 0
 symbol_set = set()
+constraint_list = []
+neighbors = []
 
 symbol_set = {'1'}
 #sys.argv[1]
@@ -41,7 +43,17 @@ def board_setup(state):
         subblock_height = subblock_width
         subblock_width = temp
 
-    return N, symbol_set, subblock_width, subblock_height, symbol_set
+    row_set = [{i for i in range(row * N, (row + 1) * N)} for row in range(N)]
+    col_set = [{i for i in range(col, col + len(state) - subblock_width * subblock_height + 1, subblock_width * subblock_height)} for col in range(N)]
+    block_set = [{(row + subblock_col) + (subblock_row * N) + col for subblock_row in range(subblock_height) for col in range(subblock_width)} for row in range(0, len(state), subblock_height * N) for subblock_col in range(0, N, subblock_width)]
+
+    constraint_list = row_set + col_set + block_set
+    neighbors = dict()
+
+    for n in range(len(state)):
+        neighbors[n] = [num for num in constraint_list if n in num]
+
+    return N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors
 
 def print_board(state):
     for x in range(0, N*N, N):
@@ -77,9 +89,15 @@ def csp_backtracking(state):
             return result
     return None
 
-for x in line_list:
-    N, symbol_set, subblock_width, subblock_height, symbol_set = board_setup(x)
-    print(subblock_width, " ", subblock_height)
-    print_board(x)
-    print(display_symbol_setup(x))
-    print()
+x = line_list[0]
+
+N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors = board_setup(x)
+print(constraint_list)
+print(neighbors)
+print(subblock_width, " ", subblock_height)
+print_board(x)
+print(display_symbol_setup(x))
+print()
+
+#for x in line_list:
+    
