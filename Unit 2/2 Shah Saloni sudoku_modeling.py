@@ -8,7 +8,7 @@ neighbors = []
 
 symbol_set = {'1'}
 #sys.argv[1]
-filename = "Unit 2/Sudoku Files/puzzles_2_variety_easy.txt"
+filename = sys.argv[1]
 
 with open(filename) as f:
     line_list = [line.strip() for line in f]
@@ -87,7 +87,7 @@ def get_sorted_values(state,  neighbor_dict, ind):
 def csp_backtracking(state, neighbor_dict):
     state_list = list(state)
     if goal_test(state):
-        return state
+        return ''.join(state)
     var = get_next_unassigned_var(state)
 
     for val in get_sorted_values(state, neighbor_dict, var):
@@ -98,14 +98,9 @@ def csp_backtracking(state, neighbor_dict):
             return result
     return None
 
-x = "21............14"
-
+count = 0
 for x in line_list:
     N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors = board_setup(x)
-    print_board(x)
-    print()
-    print_board(csp_backtracking(x, neighbors))
-    print()
-    print(display_symbol_setup(csp_backtracking(x, neighbors)))
-
-    
+    result = csp_backtracking(x, neighbors)
+    print("Puzzle", count, ", Solution:", result)
+    count += 1
