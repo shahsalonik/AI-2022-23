@@ -51,7 +51,7 @@ def board_setup(state):
     neighbors = dict()
 
     for n in range(len(state)):
-        neighbors[n] = [num for num in constraint_list if n in num]
+        neighbors[n] = [num for num in constraint_list if n in num and num != n]
 
     return N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors
 
@@ -74,17 +74,21 @@ def get_next_unassigned_var(state):
     blank_index = state.index(".")
     return blank_index
 
-def get_sorted_values(state, var):
-    return "TODO"
+def get_sorted_values(neighbor_dict, ind):
+    return neighbor_dict[ind]
 
-def csp_backtracking(state):
+def csp_backtracking(state, neighbor_dict):
+    state_list = list(state)
     if goal_test(state):
         return state
     var = get_next_unassigned_var(state)
-    for val in get_sorted_values(state, var):
-        new_state = state.copy()
+
+    print(get_sorted_values(neighbor_dict, var))
+
+    for val in get_sorted_values(neighbor_dict, var):
+        new_state = state_list.copy()
         new_state[var] = val
-        result = csp_backtracking(new_state)
+        result = csp_backtracking(new_state, neighbor_dict)
         if result is not None:
             return result
     return None
@@ -98,6 +102,8 @@ print(subblock_width, " ", subblock_height)
 print_board(x)
 print(display_symbol_setup(x))
 print()
+print(display_symbol_setup(csp_backtracking(x, neighbors)))
+
 
 #for x in line_list:
     
