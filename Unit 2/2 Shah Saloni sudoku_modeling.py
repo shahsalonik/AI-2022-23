@@ -8,7 +8,7 @@ neighbors = []
 
 symbol_set = {'1'}
 #sys.argv[1]
-filename = "Sudoku Files/puzzles_2_variety_easy.txt"
+filename = "Unit 2/Sudoku Files/puzzles_2_variety_easy.txt"
 
 with open(filename) as f:
     line_list = [line.strip() for line in f]
@@ -60,7 +60,7 @@ def print_board(state):
         i = x
         current_block = "| "
         while i < x + N:
-            current_block += state[i] + " "
+            current_block += str(state[i]) + " "
             i += 1
         current_block += "|"
         print(current_block)
@@ -74,8 +74,15 @@ def get_next_unassigned_var(state):
     blank_index = state.index(".")
     return blank_index
 
-def get_sorted_values(neighbor_dict, ind):
-    return neighbor_dict[ind]
+def get_sorted_values(state,  neighbor_dict, ind):
+    value_list = list(symbol_set)
+    count = 0
+    for y in neighbor_dict[ind]:
+        for x in neighbor_dict[ind][count]:
+            if state[x] in value_list:
+                value_list.remove(state[x])
+        count += 1
+    return value_list
 
 def csp_backtracking(state, neighbor_dict):
     state_list = list(state)
@@ -83,9 +90,7 @@ def csp_backtracking(state, neighbor_dict):
         return state
     var = get_next_unassigned_var(state)
 
-    print(get_sorted_values(neighbor_dict, var))
-
-    for val in get_sorted_values(neighbor_dict, var):
+    for val in get_sorted_values(state, neighbor_dict, var):
         new_state = state_list.copy()
         new_state[var] = val
         result = csp_backtracking(new_state, neighbor_dict)
@@ -93,17 +98,14 @@ def csp_backtracking(state, neighbor_dict):
             return result
     return None
 
-x = line_list[0]
+x = "21............14"
 
-N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors = board_setup(x)
-print(constraint_list)
-print(neighbors)
-print(subblock_width, " ", subblock_height)
-print_board(x)
-print(display_symbol_setup(x))
-print()
-print(display_symbol_setup(csp_backtracking(x, neighbors)))
+for x in line_list:
+    N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors = board_setup(x)
+    print_board(x)
+    print()
+    print_board(csp_backtracking(x, neighbors))
+    print()
+    print(display_symbol_setup(csp_backtracking(x, neighbors)))
 
-
-#for x in line_list:
     
