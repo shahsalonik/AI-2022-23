@@ -1,6 +1,5 @@
 import sys
 from time import perf_counter
-from xml.dom import INDEX_SIZE_ERR
 
 start = perf_counter()
 
@@ -8,13 +7,40 @@ N, subblock_height, subblock_width = 0, 0, 0
 symbol_set = set()
 constraint_list = []
 neighbors = []
+state_dict = dict()
 
 symbol_set = {'1'}
 #sys.argv[1]
-filename = sys.argv[1]
+filename = "Unit 2/puzzles_3_standard_medium.txt"
 
 with open(filename) as f:
     line_list = [line.strip() for line in f]
+
+def generate_board(state, neighbor_dict):
+    state_dict = dict()
+    new_state = list(state)
+    state_list = list(state)
+    ind_count = 0
+
+    for x in state:
+        if x != ".":
+            state_dict[ind_count] = str(x)
+            ind_count += 1
+        else:
+            value_list = list(symbol_set)
+            count = 0
+            ind = new_state.index(x)
+            for y in neighbor_dict[ind]:
+                for z in neighbor_dict[ind][count]:
+                    if state[z] in value_list:
+                        value_list.remove(state[z])
+                    count += 1
+                if count >= len(neighbor_dict[ind]):
+                    count = 0
+            state_dict[ind] = ''.join(value_list)
+            new_state[ind] = ""
+            ind_count += 1
+    return state_dict
 
 def display_symbol_setup(state):
     sorted_symbol_set = sorted(symbol_set)
@@ -69,16 +95,17 @@ def print_board(state):
         print(current_block)
 
 def goal_test(state):
-    if "." in state:
-        return False
+    for key in state:
+        if len(state[key]) > 1:
+            return False
     return True
 
 def get_most_constrained_var(state):
-    min_length = len(state.values()[0])
-    min_index = state.keys()[0]
+    min_length = len(state[0])
+    min_index = 0
 
-    for key in state.items():
-        if len(state[key]) < min_length:
+    for key in state:
+        if len(state[key]) < min_length and len(state[key]) != 1:
             min_length = len(state[key])
             min_index = key
 
@@ -88,9 +115,32 @@ def get_sorted_values(state, ind):
    return state[ind]
 
 def forward_looking(state):
-    return "TODO"
+    solved_list = []
 
-def csp_backtracking_with_forward_looking(state, neighbor_dict):
+    for key in state:
+        if len(state[key]) == 1:
+            solved_list.append(key)
+        if len(state[key]) == 0:
+            return None
+
+    while len(solved_list) > 0:
+        count = 0
+        for x in solved_list:
+            solved_value = state[x]
+            for y in neighbors[x][count]:
+                if solved_value in state[y]:
+                    state[y].replace(solved_value, "")
+                if len(state[y]) == 1:
+                    solved_list.append(y)
+                if len(state[y]) == 0:
+                    return None
+            count += 1
+        count = 0
+
+    return state
+    
+
+def csp_backtracking_with_forward_looking(state):
     if goal_test(state):
         return state
     var = get_most_constrained_var(state)
@@ -103,14 +153,30 @@ def csp_backtracking_with_forward_looking(state, neighbor_dict):
             if result is not None:
                 return result
     return None
-    
 
+x = "....42..41...."
+N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors = board_setup(x)
+board_dict = generate_board(x, neighbors)
+print(board_dict)
+print()
+print(neighbors)
+result = csp_backtracking_with_forward_looking(board_dict)
+print("Solution:", result)
+
+
+'''    
 count = 0
 for x in line_list:
     N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors = board_setup(x)
-    result = csp_backtracking_with_forward_looking(x, neighbors)
+    board_dict = generate_board(x, neighbors)
+    #print(board_dict)
+    #print()
+    #print(neighbors)
+    result = csp_backtracking_with_forward_looking(board_dict)
     print("Puzzle", count, "Solution:", result)
     count += 1
+'''
+    
     
 end = perf_counter()
-print("Total Time:%s" % (end - start))
+print("Total Time: %s" % (end - start))
