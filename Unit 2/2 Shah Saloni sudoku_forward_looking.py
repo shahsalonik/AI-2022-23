@@ -8,6 +8,7 @@ symbol_set = set()
 constraint_list = []
 neighbors = []
 state_dict = dict()
+solved_indices = []
 
 symbol_set = {'1'}
 #sys.argv[1]
@@ -16,30 +17,16 @@ filename = "Unit 2/puzzles_3_standard_medium.txt"
 with open(filename) as f:
     line_list = [line.strip() for line in f]
 
-def generate_board(state, neighbor_dict):
+def generate_board(state):
     state_dict = dict()
-    new_state = list(state)
-    state_list = list(state)
-    ind_count = 0
 
-    for x in state:
-        if x != ".":
-            state_dict[ind_count] = str(x)
-            ind_count += 1
+    for x in range(len(state)):
+        if state[x] != ".":
+            state_dict[x] = state[x]
+            solved_indices.append(x)
         else:
-            value_list = list(symbol_set)
-            count = 0
-            ind = new_state.index(x)
-            for y in neighbor_dict[ind]:
-                for z in neighbor_dict[ind][count]:
-                    if state[z] in value_list:
-                        value_list.remove(state[z])
-                    count += 1
-                if count >= len(neighbor_dict[ind]):
-                    count = 0
-            state_dict[ind] = ''.join(value_list)
-            new_state[ind] = ""
-            ind_count += 1
+            state_dict[x] = ''.join(symbol_set)
+    
     return state_dict
 
 def display_symbol_setup(state):
@@ -112,30 +99,60 @@ def get_most_constrained_var(state):
     return min_index
 
 def get_sorted_values(state, ind):
-   return state[ind]
+   return list(state[ind])
 
-def forward_looking(state):
+def create_solved_indices(state):
     solved_list = []
-
     for key in state:
         if len(state[key]) == 1:
             solved_list.append(key)
         if len(state[key]) == 0:
             return None
+    return solved_list
+
+def new_forward_looking(state):
+    #value_list is the list of all the values in the symbol set
+    value_list = list(symbol_set)
+
+    while(len(solved_indices)) > 0:
+        for x in solved_indices:
+            for y in neighbors[x]:
+                for z in y:
+                    if state[z] in value_list:
+                        value_list.remove(state[z])
+                        count += 1
+                    if count >= len(neighbors[y]):
+                        count = 0
+                state_dict[y] = ''.join(value_list)
+    
+    return state
+
+def forward_looking(state):
+    solved_list = []
+    removed_set = set()
+
+
+    solved_list = create_solved_indices(state)
 
     while len(solved_list) > 0:
-        count = 0
         for x in solved_list:
-            solved_value = state[x]
-            for y in neighbors[x][count]:
-                if solved_value in state[y]:
-                    state[y].replace(solved_value, "")
-                if len(state[y]) == 1:
-                    solved_list.append(y)
+            neighbor_list = list(neighbors[x][0])
+            neighbor_list += list(neighbors[x][1])
+            neighbor_list += list(neighbors[x][2])
+            neighbor_list = set(neighbor_list)
+            neighbor_list = list(neighbor_list)
+            for y in neighbor_list:
+                state_list = list(state[y])
+                if state[y] == state[x] and y != x:
+                    state_list.remove(state[x])
+                    state_string = ''.join(state_list)
+                    state[y] = state_string
+                    if len(state[y]) == 1 and y not in removed_set:
+                        solved_list.append(y)
                 if len(state[y]) == 0:
                     return None
-            count += 1
-        count = 0
+            solved_list.remove(x)
+            removed_set.add(x)
 
     return state
     
@@ -147,21 +164,22 @@ def csp_backtracking_with_forward_looking(state):
     for val in get_sorted_values(state, var):
         new_state = state.copy()
         new_state[var] = val
-        checked_board = forward_looking(new_state)
+        checked_board = new_forward_looking(new_state)
         if checked_board is not None:
             result = csp_backtracking_with_forward_looking(checked_board)
             if result is not None:
                 return result
     return None
 
-x = "....42..41...."
+x = ".2.....34.....4."
 N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors = board_setup(x)
-board_dict = generate_board(x, neighbors)
+board_dict = generate_board(x)
 print(board_dict)
 print()
 print(neighbors)
 result = csp_backtracking_with_forward_looking(board_dict)
 print("Solution:", result)
+solved_indices = []
 
 
 '''    
