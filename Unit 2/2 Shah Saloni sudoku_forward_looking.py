@@ -8,17 +8,17 @@ symbol_set = set()
 constraint_list = []
 neighbors = []
 state_dict = dict()
-solved_indices = []
 
 symbol_set = {'1'}
 #sys.argv[1]
-filename = "Unit 2/puzzles_3_standard_medium.txt"
+filename = "Unit 2/Sudoku Files/puzzles_5_standard_hard.txt"
 
 with open(filename) as f:
     line_list = [line.strip() for line in f]
 
 def generate_board(state):
     state_dict = dict()
+    solved_indices = []
 
     for x in range(len(state)):
         if state[x] != ".":
@@ -27,7 +27,7 @@ def generate_board(state):
         else:
             state_dict[x] = ''.join(symbol_set)
     
-    return state_dict
+    return state_dict, solved_indices
 
 def display_symbol_setup(state):
     sorted_symbol_set = sorted(symbol_set)
@@ -35,7 +35,6 @@ def display_symbol_setup(state):
     for x in sorted_symbol_set:
         count_dict[x] = state.count(x)
     return count_dict
-
 
 def board_setup(state):
     N = int(len(state) ** 0.5)
@@ -68,6 +67,11 @@ def board_setup(state):
 
     for n in range(len(state)):
         neighbors[n] = [num for num in constraint_list if n in num and num != n]
+        neighbor_set = list(neighbors[n][0])
+        neighbor_set += list(neighbors[n][1])
+        neighbor_set += list(neighbors[n][2])
+        neighbor_set = set(neighbor_set)
+        neighbors[n] = neighbor_set
 
     return N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors
 
@@ -88,11 +92,11 @@ def goal_test(state):
     return True
 
 def get_most_constrained_var(state):
-    min_length = len(state[0])
+    min_length = -1
     min_index = 0
 
     for key in state:
-        if len(state[key]) < min_length and len(state[key]) != 1:
+        if (min_length == -1 and len(state[key]) != 1) or (len(state[key]) < min_length and len(state[key]) != 1):
             min_length = len(state[key])
             min_index = key
 
@@ -101,99 +105,91 @@ def get_most_constrained_var(state):
 def get_sorted_values(state, ind):
    return list(state[ind])
 
-def create_solved_indices(state):
-    solved_list = []
-    for key in state:
-        if len(state[key]) == 1:
-            solved_list.append(key)
-        if len(state[key]) == 0:
-            return None
-    return solved_list
-
-def new_forward_looking(state):
-    #value_list is the list of all the values in the symbol set
-    value_list = list(symbol_set)
-
-    while(len(solved_indices)) > 0:
-        for x in solved_indices:
-            for y in neighbors[x]:
-                for z in y:
-                    if state[z] in value_list:
-                        value_list.remove(state[z])
-                        count += 1
-                    if count >= len(neighbors[y]):
-                        count = 0
-                state_dict[y] = ''.join(value_list)
-    
-    return state
-
-def forward_looking(state):
-    solved_list = []
+#pass in solved indices
+#forward looking should be able to solve the medium puzzles relatively easily
+#might take some time for hard -- for this one you do constraint prop
+def new_forward_looking(state, solved_indices):
     removed_set = set()
+    size = len(state)
 
-
-    solved_list = create_solved_indices(state)
-
-    while len(solved_list) > 0:
-        for x in solved_list:
-            neighbor_list = list(neighbors[x][0])
-            neighbor_list += list(neighbors[x][1])
-            neighbor_list += list(neighbors[x][2])
-            neighbor_list = set(neighbor_list)
-            neighbor_list = list(neighbor_list)
-            for y in neighbor_list:
-                state_list = list(state[y])
-                if state[y] == state[x] and y != x:
-                    state_list.remove(state[x])
-                    state_string = ''.join(state_list)
-                    state[y] = state_string
-                    if len(state[y]) == 1 and y not in removed_set:
-                        solved_list.append(y)
+    while solved_indices and len(removed_set) != size:
+        x = solved_indices.pop()
+        for y in neighbors[x]:
+            y_set = set(state[y])
+            if x != y and state[x] in y_set:
+                y_set.remove(state[x])
+                state[y] = ''.join(y_set)
+                if len(state[y]) == 1 and y not in removed_set:
+                    solved_indices.append(y)
                 if len(state[y]) == 0:
                     return None
-            solved_list.remove(x)
-            removed_set.add(x)
-
+        removed_set.add(x)
     return state
-    
 
-def csp_backtracking_with_forward_looking(state):
+def constraint_propagation():
+    return "TODO"
+'''
+#consider popping instead of looping (x)
+    while solved_indices and len(removed_set) != size:
+        for x in solved_indices:
+            for y in neighbor_list:
+                y_list = list(state[y])
+                if state[x] in y_list and x != y:
+                    y_list.remove(state[x])
+                if len(y_list) == 1 and x != y and y not in removed_set:
+                    solved_indices.append(y)
+                if len(y_list) == 0:
+                    return None
+                state[y] = ''.join(y_list)
+            removed_set.add(x)
+'''
+
+def csp_backtracking_with_forward_looking(state, solved_indices):
     if goal_test(state):
         return state
     var = get_most_constrained_var(state)
     for val in get_sorted_values(state, var):
         new_state = state.copy()
         new_state[var] = val
-        checked_board = new_forward_looking(new_state)
+        checked_board = new_forward_looking(new_state, [var])
         if checked_board is not None:
-            result = csp_backtracking_with_forward_looking(checked_board)
+            result = csp_backtracking_with_forward_looking(checked_board, solved_indices.copy())
             if result is not None:
                 return result
     return None
 
-x = ".2.....34.....4."
+'''
+#4 x 4 3.....2..4.....1
+x = "....8.4....2....1..6.......59....1.....6.2.......7.......5...6.4..1.....3...4...."
 N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors = board_setup(x)
-board_dict = generate_board(x)
+board_dict, solved_indices = generate_board(x)
 print(board_dict)
 print()
 print(neighbors)
-result = csp_backtracking_with_forward_looking(board_dict)
-print("Solution:", result)
+result = new_forward_looking(board_dict.copy(), solved_indices.copy())
+print(result)
+print("moving on")
+result = csp_backtracking_with_forward_looking(result, solved_indices)
+solution = ""
+for key in result:
+    solution += result[key]
+print("Solution:", solution)
 solved_indices = []
-
-
-'''    
+'''
+ 
 count = 0
 for x in line_list:
     N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors = board_setup(x)
-    board_dict = generate_board(x, neighbors)
-    #print(board_dict)
-    #print()
-    #print(neighbors)
-    result = csp_backtracking_with_forward_looking(board_dict)
-    print("Puzzle", count, "Solution:", result)
+    board_dict, solved_indices = generate_board(x)
+    result = new_forward_looking(board_dict.copy(), solved_indices.copy())
+    result = csp_backtracking_with_forward_looking(result, solved_indices)
+    solution = ""
+    for key in result:
+        solution += result[key]
+    print("Puzzle", count, "Solution:", solution)
+    solved_indices = []
     count += 1
-'''
+
     
     
 end = perf_counter()
