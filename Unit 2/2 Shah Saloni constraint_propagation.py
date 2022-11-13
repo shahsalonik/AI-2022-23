@@ -136,33 +136,34 @@ def new_forward_looking(state, solved_indices):
 #count the number of symbols in each constraint set
     #if there's only one symbol, find where that symbol was and set the value at that index to that symbol
         #doesn't apply if the index is alr solved
+    #also check if every symbol appears in there
     #set the is_changing bool to true
     #otherwise (if no change) return None
 def constraint_propagation(state):
     is_changing = False
 
-    if goal_test(state):
-        return state
-
     for cons_set in constraint_list:
-        count = dict()
-        for x in cons_set:
-            for y in state[x]:
-                if y in count:
-                    count[y].append(x)
-                else:
-                    count[y] = [x]
-        #input()
-        for key in count:
-            if len(count[key]) == 1:
-                if len(state[int(str(count[key][0]))]) != 1:
-                    state[int(str(count[key][0]))] = key
-                    is_changing = True    
+        symbols = [x for x in symbol_set]
+
+        for y in symbols:
+            symbol_list = []
+            for x in cons_set:
+                state_set = [*state[x]]
+                state_set = set(state_set)
+                if y in state_set:
+                    symbol_list.append(x)
+
+            if len(symbol_list) == 1 and len(state[symbol_list[0]]) != 1:
+                state[symbol_list[0]] = y
+                solved_indices.append(symbol_list[0])
+                is_changing = True
+            elif len(symbol_list) == 0:
+                return None
+        
         if is_changing == False:
             return None
-    
-    if is_changing:
-        return new_forward_looking(state, solved_indices)
+        else:
+            return new_forward_looking(state, solved_indices)
 
 
 def csp_backtracking_with_forward_looking(state, solved_indices):
