@@ -5,8 +5,6 @@ from time import perf_counter
 
 '''
 
-start = perf_counter()
-
 N, subblock_height, subblock_width = 0, 0, 0
 symbol_set = set()
 constraint_list = []
@@ -77,7 +75,7 @@ def board_setup(state):
         neighbor_set = set(neighbor_set)
         neighbors[n] = neighbor_set
 
-    return N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors
+    return N, subblock_width, subblock_height, symbol_set, constraint_list, neighbors
 
 def print_board(state):
     for x in range(0, N*N, N):
@@ -143,16 +141,14 @@ def constraint_propagation(state):
     is_changing = False
 
     for cons_set in constraint_list:
-        symbols = [x for x in symbol_set]
-
-        for y in symbols:
+        for y in symbol_set:
             symbol_list = []
             for x in cons_set:
                 state_set = [*state[x]]
                 state_set = set(state_set)
                 if y in state_set:
                     symbol_list.append(x)
-
+            
             if len(symbol_list) == 1 and len(state[symbol_list[0]]) != 1:
                 state[symbol_list[0]] = y
                 solved_indices.append(symbol_list[0])
@@ -162,8 +158,8 @@ def constraint_propagation(state):
         
         if is_changing == False:
             return None
-        else:
-            return new_forward_looking(state, solved_indices)
+    
+    return new_forward_looking(state, solved_indices)
 
 
 def csp_backtracking_with_forward_looking(state, solved_indices):
@@ -179,10 +175,11 @@ def csp_backtracking_with_forward_looking(state, solved_indices):
             if result is not None:
                 return result
     return None
- 
+
+start = perf_counter()
 count = 0
 for x in line_list:
-    N, symbol_set, subblock_width, subblock_height, symbol_set, constraint_list, neighbors = board_setup(x)
+    N, subblock_width, subblock_height, symbol_set, constraint_list, neighbors = board_setup(x)
     board_dict, solved_indices = generate_board(x)
     result = new_forward_looking(board_dict.copy(), solved_indices.copy())
     result = csp_backtracking_with_forward_looking(result, solved_indices)
