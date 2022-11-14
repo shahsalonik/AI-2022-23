@@ -9,7 +9,7 @@ state_dict = dict()
 
 symbol_set = {'1'}
 #sys.argv[1]
-filename = "Sudoku Files/puzzles_6_variety_hard.txt"
+filename = sys.argv[1]
 
 with open(filename) as f:
     line_list = [line.strip() for line in f]
@@ -152,7 +152,6 @@ def constraint_propagation(state):
             elif len(symbol_list) == 0:
                 return None
         
-    
     if is_changing == False:
         return None
     
