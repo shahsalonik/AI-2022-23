@@ -1,10 +1,6 @@
 import sys
 from time import perf_counter
 
-'''
-
-'''
-
 N, subblock_height, subblock_width = 0, 0, 0
 symbol_set = set()
 constraint_list = []
@@ -13,7 +9,7 @@ state_dict = dict()
 
 symbol_set = {'1'}
 #sys.argv[1]
-filename = "Unit 2/Sudoku Files/puzzles_5_standard_hard.txt"
+filename = "Sudoku Files/puzzles_6_variety_hard.txt"
 
 with open(filename) as f:
     line_list = [line.strip() for line in f]
@@ -156,8 +152,9 @@ def constraint_propagation(state):
             elif len(symbol_list) == 0:
                 return None
         
-        if is_changing == False:
-            return None
+    
+    if is_changing == False:
+        return None
     
     return new_forward_looking(state, solved_indices)
 
