@@ -5,8 +5,7 @@ distinct_wins = set()
 check_num = list()
 
 #sys.argv[1]
-board = "........."
-print(board)
+board = sys.argv[1]
 
 def game_over(board):
     for ind in range(0, 9, 3):
@@ -49,6 +48,29 @@ def max_step(board):
         results.append(min_step(next_board))
     return max(results)
 
+def max_move(board, current_player):
+    win_lose_check = -9999999
+    max_index = -1
+    index = 0
+    for x in possible_next_boards(board, "X"):
+        result = min_step(x)
+        if result == -1:
+            print("Moving at", index, "results in a loss.")
+        elif result == 0:
+            print("Moving at", index, "results in a tie.")
+        else:
+            print("Moving at", index, "results in a win.")
+        if result > win_lose_check:
+            win_lose_check = result
+            max_index = index
+        index += 1
+    print()
+    print("I choose space", max_index)
+    print()
+    board = board[0:max_index] + "X" + board[max_index + 1:]
+    print_board(board)
+    return board
+
 def min_step(board):
     num, gameover = game_over(board)
     if gameover:
@@ -59,40 +81,68 @@ def min_step(board):
         results.append(max_step(next_board))
     return min(results)
 
-max_step(board)
+def min_move(board):
+    win_lose_check = -9999999
+    min_index = -1
+    index = 0
+    for x in possible_next_boards(board, "X"):
+        result = max_step(x)
+        if result == -1:
+            print("Moving at", index, "results in a win.")
+        elif result == 0:
+            print("Moving at", index, "results in a tie.")
+        else:
+            print("Moving at", index, "results in a loss.")
+        if result < win_lose_check:
+            win_lose_check = result
+            min_index = index
+        index += 1
+    print()
+    print("I choose space", min_index)
+    print()
+    board = board[0:min_index] + "O" + board[min_index + 1:]
+    print_board(board)
+    return board
 
-print("Total number of distinct games:", len(distinct_games))
-distinct_wins = set(distinct_games)
-print("Total number of distinct wins:", len(distinct_wins))
-print()
+def ai_turn(board):
+    return "TODO"
 
-draw_count = 0
-five_count = 0
-seven_count = 0
-nine_count = 0
+def user_turn(board):
+    return "TODO"
 
-six_count = 0
-eight_count = 0
+def print_board(board):
+    for x in range(0, 9, 3):
+        print(board[x:x + 3] + "\t" + str(x+1) + str(x+2) + str(x+3))
 
-for x in distinct_wins:
-    winner, board = x 
-    if winner == 0:
-        draw_count += 1
-    if (board.count("X") + board.count("O") == 5) and winner == 1:
-        five_count += 1
-    elif (board.count("X") + board.count("O") == 7) and winner == 1:
-        seven_count += 1
-    elif (board.count("X") + board.count("O") == 9) and winner == 1:
-        nine_count += 1
-    elif (board.count("X") + board.count("O") == 6) and winner == -1:
-        six_count += 1
-    if (board.count("X") + board.count("O") == 8) and winner == -1:
-        eight_count += 1
+###INTERACTIVE PART###
 
-print("Draw:", draw_count)
-print("X in 5:", five_count)
-print("X in 7:", seven_count)
-print("X in 9:", nine_count)
+num, gameover = game_over(board)
 
-print("O in 6:", six_count)
-print("O in 8:", eight_count)
+if gameover:
+    winner = ""
+    if num == 1:
+        winner = "X won!"
+    elif num == -1:
+        winner = "O won!"
+    else:
+        winner = "We tied!"
+    print("No moves possible!", winner)
+elif board.count(".") == 9:
+    print("Should I be X or O?")
+    ai_player = input()
+    print()
+    if ai_player == "X":
+        print("Current Board:")
+        print_board(board)
+    elif ai_player == "O":
+        print("Current Board:")
+        print_board(board)
+    else:
+        print("Sorry, please enter either X or O")
+else:
+    if board.count("X") % 2 == 0:
+        #play as X
+        print("X")
+    else:
+        #play as O
+        print("O")
