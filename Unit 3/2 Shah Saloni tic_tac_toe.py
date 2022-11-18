@@ -5,7 +5,7 @@ distinct_wins = set()
 check_num = list()
 
 #sys.argv[1]
-board = sys.argv[1]
+board = "........."
 
 def game_over(board):
     for ind in range(0, 9, 3):
@@ -86,12 +86,12 @@ def min_step(board):
     return min(results)
 
 def min_move(board):
-    win_lose_check = -9999999
-    min_index = -1
+    win_lose_check = 9999999
+    min_index = -999999
     possible_set, possible_dict = possible_next_boards(board, "O")
     print()
     for key, val in possible_dict.items():
-        result = max_step(val)
+        result = min_step(val)
         if result == -1:
             print("Moving at", key, "results in a win.")
         elif result == 0:
@@ -131,13 +131,13 @@ def user_turn(board):
     print("You can move to any of these spaces: " + option_string)
     print("Your choice?")
     move = input()
-    board = board[0:int(move)] + "O" + board[int(move) + 1:]
+    board = board[0:int(move)] + user + board[int(move) + 1:]
     print_board(board)
     return ai_turn(board)
 
 def print_board(board):
     for x in range(0, 9, 3):
-        print(board[x:x + 3] + "\t" + str(x+1) + str(x+2) + str(x+3))
+        print(board[x:x + 3] + "\t" + str(x) + str(x+1) + str(x+2))
 
 ###INTERACTIVE PART###
 
@@ -161,10 +161,12 @@ elif board.count(".") == 9:
     if ai_player == "X":
         print("Current Board:")
         print_board(board)
+        user = "O"
         result, final_board = ai_turn(board)
     elif ai_player == "O":
         print("Current Board:")
         print_board(board)
+        user = "X"
         result, final_board = user_turn(board)
     else:
         print("Sorry, please enter either X or O")
@@ -185,4 +187,3 @@ else:
         ai_player = "O"
 
 winner = ""
-
