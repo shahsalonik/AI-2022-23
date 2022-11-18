@@ -43,7 +43,6 @@ def possible_next_boards(board, current_player):
 def max_step(board):
     num, gameover = game_over(board)
     if gameover:
-        distinct_games.append((num, board))
         return num
     results = []
     possible_set, possible_dict = possible_next_boards(board, "X")
@@ -77,7 +76,6 @@ def max_move(board):
 def min_step(board):
     num, gameover = game_over(board)
     if gameover:
-        distinct_games.append((num, board))
         return num
     results = []
     possible_set, possible_dict = possible_next_boards(board, "O")
@@ -87,11 +85,11 @@ def min_step(board):
 
 def min_move(board):
     win_lose_check = 9999999
-    min_index = -999999
+    min_index = -1
     possible_set, possible_dict = possible_next_boards(board, "O")
     print()
     for key, val in possible_dict.items():
-        result = min_step(val)
+        result = max_step(val)
         if result == -1:
             print("Moving at", key, "results in a win.")
         elif result == 0:
