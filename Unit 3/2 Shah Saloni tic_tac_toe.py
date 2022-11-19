@@ -1,11 +1,7 @@
 import sys
 
-distinct_games = []
-distinct_wins = set()
-check_num = list()
-
 #sys.argv[1]
-board = "........."
+board = str(sys.argv[1])
 
 def game_over(board):
     for ind in range(0, 9, 3):
@@ -121,11 +117,12 @@ def user_turn(board):
     num, gameover = game_over(board)
     if gameover:
         return num, board
-    option_string = ""
+    options = ""
     for y in range(9):
         if board[y] == ".":
-            option_string += str(y) + ", "
+            options += str(y) + ", "
     print()
+    option_string = options[:-2] + "."
     print("You can move to any of these spaces: " + option_string)
     print("Your choice?")
     move = input()
@@ -134,6 +131,7 @@ def user_turn(board):
     return ai_turn(board)
 
 def print_board(board):
+    print("Current Board:")
     for x in range(0, 9, 3):
         print(board[x:x + 3] + "\t" + str(x) + str(x+1) + str(x+2))
 
@@ -152,17 +150,15 @@ if gameover:
     else:
         winner = "We tied!"
     print("No moves possible!", winner)
-elif board.count(".") == 9:
+elif board == ".........":
     print("Should I be X or O?")
     ai_player = input()
     print()
     if ai_player == "X":
-        print("Current Board:")
         print_board(board)
         user = "O"
         result, final_board = ai_turn(board)
     elif ai_player == "O":
-        print("Current Board:")
         print_board(board)
         user = "X"
         result, final_board = user_turn(board)
@@ -172,16 +168,28 @@ elif board.count(".") == 9:
     if (result == 1 and ai_player == "X") or (result == -1 and ai_player == "O"):
         winner = "I win!"
     elif (result == 1 and user == "X") or (result == -1 and user == "O"):
-        winner = " You win!"
+        winner = "You win!"
     else:
         winner = "We tied!"
     print(winner) 
 else:
-    if board.count("X") % 2 == 0:
-        ai_player = "X"
-        user = "O"
-    else:
-        user = "X"
+    if board.count("X") % 2 == 0 and board.count("O") % 2 != 0:
+        print_board(board)
         ai_player = "O"
+        user = "X"
+        result, final_board = ai_turn(board)
+    else:
+        user = "O"
+        ai_player = "X"
+        print_board(board)
+        result, final_board = ai_turn(board)
+    print()
+    if (result == 1 and ai_player == "X") or (result == -1 and ai_player == "O"):
+        winner = "I win!"
+    elif (result == 1 and user == "X") or (result == -1 and user == "O"):
+        winner = "You win!"
+    else:
+        winner = "We tied!"
+    print(winner)
 
 winner = ""
