@@ -15,11 +15,13 @@ def convert_big_board(board):
 
 #convert index 10 -> 8 and 8 -> 10
 def convert_ten_to_eight(index):
+    index = int(index)
     row = index // 10
     col = index % 10
     return (row - 1) * 8 + (col - 1)
 
 def convert_eight_to_ten(index):
+    index = int(index)
     row = index // 8
     col = index % 8
     return (row + 1) * 10 + (col + 1)
@@ -51,13 +53,19 @@ def make_move(board, token, index):
     index = convert_eight_to_ten(index)
     opponent = "xo"["ox".index(token)]
     board_list = [*board]
-
-    for char in range(len(board)):
-        if board_list[char] == token:
-            for dir in directions:
-                if board_list[char + dir] == opponent:
-                    count = 2
-                    while char + (count * dir) != index and board[char + (count * dir)] == opponent:
-                        board_list[char + (count * dir)] = token
     
-    return ''.join(board_list)
+    for dir in directions:
+        if board_list[index + dir] == opponent:
+            count = 2
+            flip_list = set()
+            while board[index + (count * dir)] == opponent:
+                flip_list.add(index + (count * dir))
+                count += 1
+            if board_list[index + (count * dir)] == ".":
+                print("here's the flip list", flip_list)
+                break
+
+    for coin in flip_list:
+        board_list[coin] = token
+    
+    return convert_big_board(''.join(board_list))
