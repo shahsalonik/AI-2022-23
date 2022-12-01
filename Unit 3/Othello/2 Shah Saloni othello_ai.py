@@ -1,4 +1,6 @@
 import sys
+from time import perf_counter
+import time
 
 directions = [-11, -10, -9, -1, 1, 9, 10, 11]
 
@@ -158,7 +160,7 @@ def find_next_move(board, player, depth):
         if player == "x":
             return max_move(new_board, depth) #min_step(new_board, opponent, depth - 1)
         elif player == "o":
-            return min_move(new_board, opponent) #max_step(new_board, opponent, depth - 1)
+            return min_move(new_board, depth) #max_step(new_board, opponent, depth - 1)
 
 #FOR OTHELLO RED
 '''
@@ -183,3 +185,21 @@ for count in range(board.count(".")):  # No need to look more spaces into the fu
    depth += 1
 
 results = []
+with open("Unit 3/Othello/boards_timing.txt") as f:
+    for line in f:
+        board, token = line.strip().split()
+        temp_list = [board, token]
+        print(temp_list)
+        for count in range(1, 6):
+            print("depth", count)
+            start = time.perf_counter()
+            find_next_move(board, token, count)
+            end = time.perf_counter()
+            temp_list.append(str(end - start))
+        print(temp_list)
+        print()
+        results.append(temp_list)
+
+with open("Unit 3/Othello/boards_timing_my_results.csv", "w") as g:
+    for l in results:
+        g.write(", ".join(1) + "\n")
