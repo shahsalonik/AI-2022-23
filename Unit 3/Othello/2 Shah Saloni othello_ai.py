@@ -2,6 +2,11 @@ import sys
 
 directions = [-11, -10, -9, -1, 1, 9, 10, 11]
 
+def game_over(board):
+    if "." in board:
+        return False
+    return False
+
 def convert_small_board(board):
     new_board_string = "??????????"
     for x in range(0, len(board), 8):
@@ -71,37 +76,73 @@ def make_move(board, token, index):
     return convert_big_board(''.join(board_list))
 
 def score(board):
-    return "TODO"
-
-def min_step(board, opponent, depth):
-    game_over = False
-    player = "xo"["ox".index(opponent)]
-
-    if depth == 0 or game_over:
-        return score(board)
     
     return "TODO"
 
-def max_step(board, opponent, depth):
-    game_over = False
+def min_step(board, opponent, depth):
     player = "xo"["ox".index(opponent)]
 
-    if depth == 0 or game_over:
+    if depth == 0:
+        return score(board)
+    
+    children = []
+    for child in possible_moves(board, "x"):
+        new_board = make_move(board, "x", child)
+        result = max_step(new_board, opponent, depth - 1)
+        children.append(result)
+    
+    if len(children) == 0:
+        return max_step(board, opponent, depth - 1)
+
+    return min(children)
+    
+def max_step(board, opponent, depth):
+    player = "xo"["ox".index(opponent)]
+
+    if depth == 0:
         return score(board)
 
-    return "TODO"
+    children = []
+    for child in possible_moves(board, "o"):
+        new_board = make_move(board, "o", child)
+        result = min_step(new_board, opponent, depth - 1)
+        children.append(result)
+    
+    if len(children) == 0:
+        return min_step(board, opponent, depth - 1)
+
+    return max(children)
+
+def min_move(board, depth):
+    win_lose_check = 9999999
+    min_index = -1
+    for move in possible_moves(board, "o"):
+        new_board = make_move(board, "o", move)
+        result = max_step(new_board, depth)
+        if result < win_lose_check:
+            win_lose_check = result
+            min_index = move
+    return min_index
+
+def max_move(board, depth):
+    win_lose_check = -9999999
+    max_index = -1
+    for move in possible_moves(board, "x"):
+        new_board = make_move(board, "x", move)
+        result = min_step(new_board, depth)
+        if result > win_lose_check:
+            win_lose_check = result
+            max_index = move
+    return max_index
 
 def find_next_move(board, player, depth):
     opponent = "xo"["ox".index(player)]
-
     for move in possible_moves(board, player):
         new_board = make_move(board, player, move)
         if player == "x":
-            max_step(new_board, opponent, depth - 1)
-        if player == "o":
-            min_step(new_board, opponent, depth - 1)
-    return "TODO" #will return a move with the best outcome
-
+            return max_move(new_board, depth) #min_step(new_board, opponent, depth - 1)
+        elif player == "o":
+            return min_move(new_board, opponent) #max_step(new_board, opponent, depth - 1)
 
 #FOR OTHELLO RED
 class Strategy():
@@ -112,7 +153,6 @@ class Strategy():
         for count in range(board.count(".")):
             best_move.value = find_next_move(board, player, depth)
             depth += 1
-
 
 
 #FOR OTHELLO BLUE
