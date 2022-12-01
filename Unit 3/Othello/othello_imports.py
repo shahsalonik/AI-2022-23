@@ -45,4 +45,27 @@ def possible_moves(board, token):
     return list(possible_move_list)
 
 def make_move(board, token, index):
-    return "TODO"
+    board = convert_small_board(board)
+    index = convert_eight_to_ten(index)
+    opponent = "xo"["ox".index(token)]
+    board_list = [*board]
+    flip_set = set()
+    
+    for dir in directions:
+        if board_list[index + dir] == opponent:
+            count = 1
+            temp_flip_set = set()
+            temp_flip_set.add(index + dir)
+            while board_list[index + (count * dir)] == opponent:
+                temp_flip_set.add(index + (count * dir))
+                count += 1
+            if board_list[index] == ".":
+                temp_flip_set.add(index)
+            if board_list[index + (count * dir)] == token:
+                for i in temp_flip_set:
+                    flip_set.add(i)
+
+    for coin in flip_set:
+        board_list[coin] = token
+    
+    return convert_big_board(''.join(board_list))
