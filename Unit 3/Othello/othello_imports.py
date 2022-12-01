@@ -1,6 +1,5 @@
 import sys
 
-#              0    1    2   3  4  5  6   7
 directions = [-11, -10, -9, -1, 1, 9, 10, 11]
 
 def convert_small_board(board):
@@ -26,9 +25,6 @@ def convert_eight_to_ten(index):
     col = index % 8
     return (row + 1) * 10 + (col + 1)
 
-#I THINK:
-#issue rn is that it's taking the index of the big board with the question marks
-#need to figure out how to do the small board
 def possible_moves(board, token):
     board = convert_small_board(board)
     opponent = "xo"["ox".index(token)]
@@ -53,19 +49,23 @@ def make_move(board, token, index):
     index = convert_eight_to_ten(index)
     opponent = "xo"["ox".index(token)]
     board_list = [*board]
+    flip_set = set()
     
     for dir in directions:
         if board_list[index + dir] == opponent:
-            count = 2
-            flip_list = set()
-            while board[index + (count * dir)] == opponent:
-                flip_list.add(index + (count * dir))
+            count = 1
+            temp_flip_set = set()
+            temp_flip_set.add(index + dir)
+            while board_list[index + (count * dir)] == opponent:
+                temp_flip_set.add(index + (count * dir))
                 count += 1
-            if board_list[index + (count * dir)] == ".":
-                print("here's the flip list", flip_list)
-                break
+            if board_list[index] == ".":
+                temp_flip_set.add(index)
+            if board_list[index + (count * dir)] == token:
+                for i in temp_flip_set:
+                    flip_set.add(i)
 
-    for coin in flip_list:
+    for coin in flip_set:
         board_list[coin] = token
     
     return convert_big_board(''.join(board_list))
