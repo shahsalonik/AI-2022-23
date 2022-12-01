@@ -76,12 +76,30 @@ def make_move(board, token, index):
     return convert_big_board(''.join(board_list))
 
 def score(board):
+    score = 0
+    x = "x"
+    o = "o"
+
+    score += 20 * (board.count(x)) - (board.count(o))
+    corner_list = [board[0], board[7], board[56], board[63]]
+    for corner in corner_list:
+        if corner == x:
+            score += 20
+        elif corner == o:
+            score -= 20
     
-    return "TODO"
+    score += 15 * ((possible_moves(board, x)) - (possible_moves(board, o)))
+
+    if "." not in board:
+        x_count = board.count(x)
+        if x_count < 33:
+            score = 1000000 + x_count
+        elif x_count > 33:
+            score += 1000000 - x_count
+
+    return score
 
 def min_step(board, opponent, depth):
-    player = "xo"["ox".index(opponent)]
-
     if depth == 0:
         return score(board)
     
@@ -97,8 +115,6 @@ def min_step(board, opponent, depth):
     return min(children)
     
 def max_step(board, opponent, depth):
-    player = "xo"["ox".index(opponent)]
-
     if depth == 0:
         return score(board)
 
