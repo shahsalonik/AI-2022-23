@@ -88,7 +88,7 @@ def score(board):
         elif corner == o:
             score -= 20
     
-    score += 15 * ((possible_moves(board, x)) - (possible_moves(board, o)))
+    score += 15 * (len(possible_moves(board, x)) - len(possible_moves(board, o)))
 
     if "." not in board:
         x_count = board.count(x)
@@ -134,7 +134,7 @@ def min_move(board, depth):
     min_index = -1
     for move in possible_moves(board, "o"):
         new_board = make_move(board, "o", move)
-        result = max_step(new_board, depth)
+        result = max_step(new_board, "x", depth)
         if result < win_lose_check:
             win_lose_check = result
             min_index = move
@@ -145,7 +145,7 @@ def max_move(board, depth):
     max_index = -1
     for move in possible_moves(board, "x"):
         new_board = make_move(board, "x", move)
-        result = min_step(new_board, depth)
+        result = min_step(new_board, "o", depth)
         if result > win_lose_check:
             win_lose_check = result
             max_index = move
@@ -161,6 +161,7 @@ def find_next_move(board, player, depth):
             return min_move(new_board, opponent) #max_step(new_board, opponent, depth - 1)
 
 #FOR OTHELLO RED
+'''
 class Strategy():
     logging = True
     
@@ -169,15 +170,16 @@ class Strategy():
         for count in range(board.count(".")):
             best_move.value = find_next_move(board, player, depth)
             depth += 1
-
+'''
 
 #FOR OTHELLO BLUE
-'''
-board = sys.argv[1]
-player = sys.argv[2]
+
+board = "...........................ox......xo..........................."
+player = "x"
 depth = 1
 
 for count in range(board.count(".")):  # No need to look more spaces into the future than exist at all
    print(find_next_move(board, player, depth))
    depth += 1
-'''
+
+results = []
