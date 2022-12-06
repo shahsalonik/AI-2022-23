@@ -4,10 +4,10 @@ import subprocess
 
 print(sys.version)
 
-time_limit = 2   # Time limit per turn in seconds.  Set to None for no time limit.
+time_limit = 5   # Time limit per turn in seconds.  Set to None for no time limit.
 # p1, p2 = sys.argv[1], sys.argv[2]   # Uncomment to use command line arguments.
-p1 = "oth_random_import.py"
-p2 = "oth_greedy_predictable_import.py"
+p1 = "Unit 3/Othello/othello_ai.py"
+p2 = "Unit 3/Othello/oth_corners_unpredictable_import.py"
 players = [p1, p2]
 
 
@@ -83,12 +83,16 @@ def run_game(players):
             outs = timeErr.stdout
             errs = timeErr.stderr
             print("Turn killed after time limit.")
-        if len(errs) > 0:
+        if errs is not None and len(errs) > 0:   ## THIS LINE NEEDS TO BE MODIFIED TO WHAT YOU SEE HERE
             print("Error message from", players[turn] + ":")
             print(errs)
             print()
             print("Attempting to continue play.")
         # Now that the output of the player's code is captured, try to get a valid move out of it.
+        try:                                     ## THIS TRY / EXCEPT NEEDS TO BE ADDED (the next four lines)
+            outs = outs.decode("ascii")
+        except:
+            pass
         outputs = outs.strip().split("\n")
         try:
             move = int(outputs[-1])
@@ -96,7 +100,7 @@ def run_game(players):
             print("The last printed text from", players[turn], "is not an integer, so no move was captured.")
             print("For debugging, current board is:", board)
             print("This is the output given by the script:")
-            print(outs)
+            #print(outs)
             print()
             print("This game is over; no victor.")
             return None, move_tracker, board_state_tracker
@@ -104,7 +108,7 @@ def run_game(players):
             print("Captured move", move, "is not a valid location to play.")
             print("For debugging, current board is:", board)
             print("This is the output given by the script:")
-            print(outs)
+            #print(outs)
             print()
             print("This game is over; no victor.")
             return None, move_tracker, board_state_tracker
@@ -115,9 +119,6 @@ def run_game(players):
         turn = 1-turn
         move_tracker.append(move)
         board_state_tracker.append(board)
-
-
-
 
 
 

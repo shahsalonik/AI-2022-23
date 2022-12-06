@@ -5,9 +5,9 @@ import time
 directions = [-11, -10, -9, -1, 1, 9, 10, 11]
 
 def game_over(board):
-    if "." in board:
+    if "." in board or (len(possible_moves(board, "x")) == 0 and len(possible_moves(board, "o")) == 0):
         return False
-    return False
+    return True
 
 def convert_small_board(board):
     new_board_string = "??????????"
@@ -95,15 +95,39 @@ def score(board):
     if "." not in board:
         x_count = board.count(x)
         if x_count < 33:
-            score = 1000000 + x_count
+            score += 1000000 + x_count
         elif x_count > 33:
             score += 1000000 - x_count
 
     return score
 
+def mid_game(board):
+    if board.count(".") < 12:
+        score(board)
+    
+    mid_score = 0
+    x = "x"
+    o = "o"
+    corner_list = [board[0], board[7], board[56], board[63]]
+
+    for corner in corner_list:
+        if corner == x:
+            mid_score += 40
+        elif corner == o:
+            mid_score -= 40
+    
+    mid_score += 20 * (len(possible_moves(board, x)) - len(possible_moves(board, o)))
+    mid_score += (board.count(x) - board.count(o))
+
+    edge_list = [board[1], board[8], board[9], board[6], board[14], board[15],board[48], board[49], board[57], board[54], board[55], board[62]]
+    mid_score += 2 * edge_list.count(o)
+    mid_score += 2 * edge_list.count(x)
+
+    return mid_score
+
 def min_step(board, opponent, depth):
-    if depth == 0:
-        return score(board)
+    if depth == 0 or game_over(board):
+        return mid_game(board)
     
     children = []
     for child in possible_moves(board, "x"):
@@ -117,8 +141,8 @@ def min_step(board, opponent, depth):
     return min(children)
     
 def max_step(board, opponent, depth):
-    if depth == 0:
-        return score(board)
+    if depth == 0 or game_over(board):
+        return mid_game(board)
 
     children = []
     for child in possible_moves(board, "o"):
@@ -131,6 +155,7 @@ def max_step(board, opponent, depth):
 
     return max(children)
 
+'''
 def min_move(board, depth):
     win_lose_check = 9999999
     min_index = -1
@@ -152,15 +177,15 @@ def max_move(board, depth):
             win_lose_check = result
             max_index = move
     return max_index
+'''
 
 def find_next_move(board, player, depth):
-    opponent = "xo"["ox".index(player)]
     for move in possible_moves(board, player):
         new_board = make_move(board, player, move)
         if player == "x":
-            return max_move(new_board, depth) #min_step(new_board, opponent, depth - 1)
+            return min_step(new_board, "o", depth - 1) #min_step(new_board, opponent, depth - 1)
         elif player == "o":
-            return min_move(new_board, depth) #max_step(new_board, opponent, depth - 1)
+            return max_step(new_board, "x", depth - 1) #max_step(new_board, opponent, depth - 1)
 
 #FOR OTHELLO RED
 '''
@@ -176,30 +201,38 @@ class Strategy():
 
 #FOR OTHELLO BLUE
 
-board = "...........................ox......xo..........................."
-player = "x"
+
+board = sys.argv[1]
+player = sys.argv[2]
+#board = "...........................ox......xo..........................."
+#player = "x"
 depth = 1
 
 for count in range(board.count(".")):  # No need to look more spaces into the future than exist at all
    print(find_next_move(board, player, depth))
    depth += 1
 
+
+'''
 results = []
 with open("Unit 3/Othello/boards_timing.txt") as f:
     for line in f:
         board, token = line.strip().split()
         temp_list = [board, token]
         print(temp_list)
-        for count in range(1, 6):
-            print("depth", count)
+        for count in range(1, 7):
             start = time.perf_counter()
             find_next_move(board, token, count)
             end = time.perf_counter()
             temp_list.append(str(end - start))
+            print("depth", count)
         print(temp_list)
         print()
         results.append(temp_list)
+'''
 
+'''
 with open("Unit 3/Othello/boards_timing_my_results.csv", "w") as g:
     for l in results:
         g.write(", ".join(1) + "\n")
+'''
