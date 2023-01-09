@@ -3,6 +3,7 @@ from heapq import heapify, heappush, heappop
 from time import perf_counter
 import sys
 
+#GIVEN
 def calcd(node1, node2):
    # y1 = lat1, x1 = long1
    # y2 = lat2, x2 = long2
@@ -19,9 +20,9 @@ def calcd(node1, node2):
    # approximate great circle distance with law of cosines
    return acos( sin(y1)*sin(y2) + cos(y1)*cos(y2)*cos(x2-x1) ) * R
 
-edges = "Unit 4/Train Routes Files/rrEdges.txt"
-names = "Unit 4/Train Routes Files/rrNodeCity.txt"
-coords = "Unit 4/Train Routes Files/rrNodes.txt"
+edges = "rrEdges.txt"
+names = "rrNodeCity.txt"
+coords = "rrNodes.txt"
 
 dict_start = perf_counter()
 
@@ -87,7 +88,6 @@ def dijkstra(start, end):
 
 def a_star(start, end):
     closed = {start: (0, [start])}
-    #if this doesnt work then try future dist + actual dist (taxicab + backing_dict[start])
     start_node = (taxicab(start, end), start, [start])
     fringe = []
     heapify(fringe)
@@ -119,12 +119,15 @@ city2 = sys.argv[2]
 city_id1 = name_dict[city1]
 city_id2 = name_dict[city2]
 
+print(city_id1)
+print(city_id2)
+
 dij_start = perf_counter()
 dij_distance = dijkstra(city_id1, city_id2)
 dij_end = perf_counter()
 
 astar_start = perf_counter()
-astar_distance = a_star(city_id1, city_id2)[1]
+astar_distance = a_star(city_id1, city_id2)
 astar_end = perf_counter()
 
 print(city1 + " to " + city2 + " with Dijkstra: " + str(dij_distance) + " in " + str(dij_end - dij_start))
