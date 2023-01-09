@@ -85,26 +85,34 @@ def dijkstra(start, end):
    
    return None
 
-def a_star(start, end, graph):
+def a_star(start, end):
     closed = {start: (0, [start])}
-    total_dist = taxicab(start, end)
+    #if this doesnt work then try future dist + actual dist (taxicab + backing_dict[start])
+    start_node = (taxicab(start, end), start, [start])
     fringe = []
     heapify(fringe)
-    heappush(fringe, total_dist)
+    heappush(fringe, start_node)
 
     while len(fringe) > 0:
       v = heappop(fringe)
 
       if v[1] == end:
-         path, distance = closed[v[1]][1], v[0]
-         return path, distance
+         distance = v[0]
+         return distance
       
       #need to add the for loop
+      for c in backing_dict[v[1]]:
+        actual_dist = closed[v[1]][0] + taxicab(v[1], c[0])
+        if c[0] not in closed or closed[c[0]][0] > actual_dist:
+            estimated_dist = taxicab(c[0], end)
+            heappush(fringe, (actual_dist + estimated_dist, c[0], v[2] + [c]))
+            closed[c[0]] = (actual_dist, v[2] + [c])
 
     return None, None
 
 print("Time to create data structure: " + str(dict_end - dict_start))
 
+#sys.argv[1]
 city1 = sys.argv[1]
 city2 = sys.argv[2]
 
@@ -112,8 +120,12 @@ city_id1 = name_dict[city1]
 city_id2 = name_dict[city2]
 
 dij_start = perf_counter()
-distance = dijkstra(city_id1, city_id2)
+dij_distance = dijkstra(city_id1, city_id2)
 dij_end = perf_counter()
 
-print(city1 + " to " + city2 + " with Dijkstra: " + str(distance) + " in " + str(dij_end - dij_start))
-print(city1 + " to " + city2 + " with A*: ")
+astar_start = perf_counter()
+astar_distance = a_star(city_id1, city_id2)[1]
+astar_end = perf_counter()
+
+print(city1 + " to " + city2 + " with Dijkstra: " + str(dij_distance) + " in " + str(dij_end - dij_start))
+print(city1 + " to " + city2 + " with A*: " + str(astar_distance) + " in " + str(astar_end - astar_start))
