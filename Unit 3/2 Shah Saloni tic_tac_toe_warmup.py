@@ -1,11 +1,7 @@
 import sys
 
-distinct_games = []
-distinct_wins = set()
-check_num = list()
-
 #sys.argv[1]
-board = sys.argv[1]
+board = str(sys.argv[1])
 
 def game_over(board):
     for ind in range(0, 9, 3):
@@ -32,38 +28,40 @@ def game_over(board):
 
 def possible_next_boards(board, current_player):
     possible_boards = set()
+    possible_boards_dict = dict()
     for i in range(9):
         if board[i] == ".":
             temp_board = board[0:i] + current_player + board[i+1:]
             possible_boards.add(temp_board)
-    return possible_boards
+            possible_boards_dict[i] = temp_board
+    return possible_boards, possible_boards_dict
 
 def max_step(board):
     num, gameover = game_over(board)
     if gameover:
-        distinct_games.append((num, board))
         return num
     results = []
-    for next_board in possible_next_boards(board, "X"):
+    possible_set, possible_dict = possible_next_boards(board, "X")
+    for next_board in possible_set:
         results.append(min_step(next_board))
     return max(results)
 
-def max_move(board, current_player):
+def max_move(board):
     win_lose_check = -9999999
     max_index = -1
-    index = 0
-    for x in possible_next_boards(board, "X"):
-        result = min_step(x)
+    possible_set, possible_dict = possible_next_boards(board, "X")
+    print()
+    for key, val in possible_dict.items():
+        result = min_step(val)
         if result == -1:
-            print("Moving at", index, "results in a loss.")
+            print("Moving at", key, "results in a loss.")
         elif result == 0:
-            print("Moving at", index, "results in a tie.")
+            print("Moving at", key, "results in a tie.")
         else:
-            print("Moving at", index, "results in a win.")
+            print("Moving at", key, "results in a win.")
         if result > win_lose_check:
             win_lose_check = result
-            max_index = index
-        index += 1
+            max_index = key
     print()
     print("I choose space", max_index)
     print()
@@ -74,29 +72,29 @@ def max_move(board, current_player):
 def min_step(board):
     num, gameover = game_over(board)
     if gameover:
-        distinct_games.append((num, board))
         return num
     results = []
-    for next_board in possible_next_boards(board, "O"):
+    possible_set, possible_dict = possible_next_boards(board, "O")
+    for next_board in possible_set:
         results.append(max_step(next_board))
     return min(results)
 
 def min_move(board):
-    win_lose_check = -9999999
+    win_lose_check = 9999999
     min_index = -1
-    index = 0
-    for x in possible_next_boards(board, "X"):
-        result = max_step(x)
+    possible_set, possible_dict = possible_next_boards(board, "O")
+    print()
+    for key, val in possible_dict.items():
+        result = max_step(val)
         if result == -1:
-            print("Moving at", index, "results in a win.")
+            print("Moving at", key, "results in a win.")
         elif result == 0:
-            print("Moving at", index, "results in a tie.")
+            print("Moving at", key, "results in a tie.")
         else:
-            print("Moving at", index, "results in a loss.")
+            print("Moving at", key, "results in a loss.")
         if result < win_lose_check:
             win_lose_check = result
-            min_index = index
-        index += 1
+            min_index = key
     print()
     print("I choose space", min_index)
     print()
@@ -105,18 +103,43 @@ def min_move(board):
     return board
 
 def ai_turn(board):
-    return "TODO"
+    num, gameover = game_over(board)
+    if gameover:
+        return num, board
+    start_state = ""
+    if ai_player == "X":
+        start_state = max_move(board)
+    else:
+        start_state = min_move(board)
+    return user_turn(start_state)
 
 def user_turn(board):
-    return "TODO"
+    num, gameover = game_over(board)
+    if gameover:
+        return num, board
+    options = ""
+    for y in range(9):
+        if board[y] == ".":
+            options += str(y) + ", "
+    print()
+    option_string = options[:-2] + "."
+    print("You can move to any of these spaces: " + option_string)
+    print("Your choice?")
+    move = input()
+    board = board[0:int(move)] + user + board[int(move) + 1:]
+    print_board(board)
+    return ai_turn(board)
 
 def print_board(board):
+    print("Current Board:")
     for x in range(0, 9, 3):
-        print(board[x:x + 3] + "\t" + str(x+1) + str(x+2) + str(x+3))
+        print(board[x:x + 3] + "\t" + str(x) + str(x+1) + str(x+2))
 
 ###INTERACTIVE PART###
 
 num, gameover = game_over(board)
+ai_player = ""
+user = ""
 
 if gameover:
     winner = ""
@@ -127,22 +150,46 @@ if gameover:
     else:
         winner = "We tied!"
     print("No moves possible!", winner)
-elif board.count(".") == 9:
+elif board == ".........":
     print("Should I be X or O?")
     ai_player = input()
     print()
     if ai_player == "X":
-        print("Current Board:")
         print_board(board)
+        user = "O"
+        result, final_board = ai_turn(board)
     elif ai_player == "O":
-        print("Current Board:")
         print_board(board)
+        user = "X"
+        result, final_board = user_turn(board)
     else:
         print("Sorry, please enter either X or O")
-else:
-    if board.count("X") % 2 == 0:
-        #play as X
-        print("X")
+    print()
+    if (result == 1 and ai_player == "X") or (result == -1 and ai_player == "O"):
+        winner = "I win!"
+    elif (result == 1 and user == "X") or (result == -1 and user == "O"):
+        winner = "You win!"
     else:
-        #play as O
-        print("O")
+        winner = "We tied!"
+    print(winner) 
+else:
+    if board.count("X") % 2 == 0 and board.count("O") % 2 != 0:
+        print_board(board)
+        ai_player = "O"
+        user = "X"
+        result, final_board = ai_turn(board)
+    else:
+        user = "O"
+        ai_player = "X"
+        print_board(board)
+        result, final_board = ai_turn(board)
+    print()
+    if (result == 1 and ai_player == "X") or (result == -1 and ai_player == "O"):
+        winner = "I win!"
+    elif (result == 1 and user == "X") or (result == -1 and user == "O"):
+        winner = "You win!"
+    else:
+        winner = "We tied!"
+    print(winner)
+
+winner = ""
