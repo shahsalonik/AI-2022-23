@@ -65,7 +65,8 @@ root = tk.Tk()
 canvas = tk.Canvas(root, height=800, width=800, bg='white')
 
 #dict that stores things like {(id1, id2): canvas line object}
-canvas_dict = {}
+canvas_dict_draw = {}
+canvas_dict_access = {}
 with open(edges) as f:
    for line in f:
       id1, id2 = line.split()
@@ -76,24 +77,34 @@ with open(edges) as f:
       new_lat2 = 800 - (((lat2 - 10) / 60) * 800)
       new_long2 = (((long2 + 130) / 70) * 800)
       line = canvas.create_line([(new_long1, new_lat1), (new_long2, new_lat2)], tag='grid_line')
-      canvas_dict[(id1, id2)] = line
+      canvas_dict_draw[(id1, id2)] = line
+      canvas_dict_access[(id1, id2)] = line
+      canvas_dict_access[(id2, id1)] = line
 
 dict_end = perf_counter()
 
 def draw_general_path(r, c):
-   for key in canvas_dict.keys():
-      c.itemconfig(canvas_dict[key], fill="red")
+   for key in canvas_dict_draw.keys():
+      c.itemconfig(canvas_dict_draw[key])
       r.update()
-      time.sleep(0.1)
+   #time.sleep(10)
 
-def draw_dijkstra_path():
-   return
+def draw_dijkstra_path(r, c, edge1, edge2):
+   c.itemconfig(canvas_dict_access[(edge1, edge2)], fill = "red")
+   r.update()
+
+def draw_dijkstra_final_path(r, c, p):
+   for n in range(0, len(p) - 1, 2): 
+      c.itemconfig(canvas_dict_access[(p[n], p[n+1])], fill = "green")
+      r.update()
 
 def draw_a_star_path():
    return
 
-def draw_final_path():
+def draw_astar_final_path():
    return
+
+
 
 def taxicab(node1, node2):
    return calcd(coord_dict[node1], coord_dict[node2])
@@ -109,12 +120,15 @@ def dijkstra(start, end):
       v = heappop(fringe)
 
       if v[1] == end:
-         return closed[v[1]][1], v[0]
+         path, distance = closed[v[1]][1], v[0]
+         draw_dijkstra_final_path(root, canvas, path)
+         return path, distance
       for c in backing_dict[v[1]]:
          if c[0] not in closed:
             temp = ((v[0] + c[1], c[0]))
             closed[c[0]] = (v[0] + c[1], closed[v[1]][1] + [c[0]])
             heappush(fringe, temp)
+            draw_dijkstra_path(root, canvas, v[1], c[0])
    
    return None, None
 
@@ -146,8 +160,8 @@ print("Time to create data structure: " + str(dict_end - dict_start))
 canvas.pack(expand=True) #packing widgets places them on the board
 
 #sys.argv[1]
-city1 = "Leon"
-city2 = "Tucson"
+city1 = "Albuquerque"
+city2 = "Atlanta"
 
 city_id1 = name_dict[city1]
 city_id2 = name_dict[city2]
