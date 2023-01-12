@@ -94,17 +94,16 @@ def draw_dijkstra_path(r, c, edge1, edge2):
    r.update()
 
 def draw_dijkstra_final_path(r, c, p):
-   for n in range(0, len(p) - 1, 2): 
-      c.itemconfig(canvas_dict_access[(p[n], p[n+1])], fill = "green")
+   for n in range(len(p) - 1): 
+      c.itemconfig(canvas_dict_access[(p[n], p[n+1])], fill = "green", width = 5)
       r.update()
+   time.sleep(3)
 
 def draw_a_star_path():
    return
 
 def draw_astar_final_path():
    return
-
-
 
 def taxicab(node1, node2):
    return calcd(coord_dict[node1], coord_dict[node2])
