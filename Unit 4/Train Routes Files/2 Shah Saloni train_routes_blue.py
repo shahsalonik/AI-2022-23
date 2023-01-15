@@ -21,9 +21,9 @@ def calcd(node1, node2):
    # approximate great circle distance with law of cosines
    return acos( sin(y1)*sin(y2) + cos(y1)*cos(y2)*cos(x2-x1) ) * R
 
-edges = "rrEdges.txt"
-names = "rrNodeCity.txt"
-coords = "rrNodes.txt"
+edges = "Unit 4/Train Routes Files/rrEdges.txt"
+names = "Unit 4/Train Routes Files/rrNodeCity.txt"
+coords = "Unit 4/Train Routes Files/rrNodes.txt"
 
 dict_start = perf_counter()
 
@@ -93,13 +93,13 @@ with open(edges) as f:
 dict_end = perf_counter()
 
 def draw_general_path(r, c):
-   for key in canvas_dict_draw.keys():
-      c.itemconfig(canvas_dict_draw[key])
-      r.update()
+    for key in canvas_dict_draw.keys():
+        c.itemconfig(canvas_dict_draw[key])
+        r.update()
    #time.sleep(10)
 
 def draw_dijkstra_path(r, c, edge1, edge2):
-   c.itemconfig(canvas_dict_access[(edge1, edge2)], fill = "red")
+   c.itemconfig(canvas_dict_access[(edge1, edge2)], fill = "red", width = 2)
    #r.update()
 
 def draw_dijkstra_final_path(r, c, p):
@@ -108,7 +108,7 @@ def draw_dijkstra_final_path(r, c, p):
       r.update()
 
 def draw_a_star_path(r, c, edge1, edge2):
-   c.itemconfig(astar_canvas_dict_access[(edge1, edge2)], fill = "blue")
+   c.itemconfig(astar_canvas_dict_access[(edge1, edge2)], fill = "blue", width = 2)
 
 def draw_astar_final_path(r, c, p, start):
    for n in range(len(p) - 1): 
