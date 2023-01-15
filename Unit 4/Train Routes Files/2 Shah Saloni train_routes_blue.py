@@ -64,9 +64,14 @@ with open(edges) as f:
 #dict that stores things like {(id1, id2): canvas line object}
 canvas_dict_draw = {}
 canvas_dict_access = {}
+astar_canvas_dict_draw = {}
+astar_canvas_dict_access = {}
 with open(edges) as f:
    root = tk.Tk()
    canvas = tk.Canvas(root, height=800, width=800, bg='white')
+   astar_root = tk.Tk()
+   astar_canvas = tk.Canvas(astar_root, height=800, width=800, bg='white')
+
    for line in f:
       id1, id2 = line.split()
       lat1, long1 = coord_dict[id1]
@@ -79,6 +84,11 @@ with open(edges) as f:
       canvas_dict_draw[(id1, id2)] = line
       canvas_dict_access[(id1, id2)] = line
       canvas_dict_access[(id2, id1)] = line
+
+      astar_line = astar_canvas.create_line([(new_long1, new_lat1), (new_long2, new_lat2)], tag='grid_line')
+      astar_canvas_dict_draw[(id1, id2)] = astar_line
+      astar_canvas_dict_access[(id1, id2)] = astar_line
+      astar_canvas_dict_access[(id2, id1)] = astar_line
 
 dict_end = perf_counter()
 
@@ -94,28 +104,28 @@ def draw_dijkstra_path(r, c, edge1, edge2):
 
 def draw_dijkstra_final_path(r, c, p):
    for n in range(len(p) - 1): 
-      c.itemconfig(canvas_dict_access[(p[n], p[n+1])], fill = "green")
+      c.itemconfig(canvas_dict_access[(p[n], p[n+1])], fill = "green", width = 5)
       r.update()
-   #time.sleep(3)
 
 def draw_a_star_path(r, c, edge1, edge2):
-   c.itemconfig(canvas_dict_access[(edge1, edge2)], fill = "blue")
-   #r.update()
+   c.itemconfig(astar_canvas_dict_access[(edge1, edge2)], fill = "blue")
 
 def draw_astar_final_path(r, c, p, start):
    for n in range(len(p) - 1): 
       if p[n] == start:
-         c.itemconfig(canvas_dict_access[(p[n], p[n+1][0])], fill = "magenta", width = 5)
+         c.itemconfig(astar_canvas_dict_access[(p[n], p[n+1][0])], fill = "green", width = 5)
          r.update()
       else:
-         c.itemconfig(canvas_dict_access[(p[n][0], p[n+1][0])], fill = "magenta", width = 5)
+         c.itemconfig(astar_canvas_dict_access[(p[n][0], p[n+1][0])], fill = "green", width = 5)
          r.update()
-   time.sleep(10)
+   #r.mainloop()
 
 def taxicab(node1, node2):
    return calcd(coord_dict[node1], coord_dict[node2])
 
 def dijkstra(start, end):
+   update_count = 0
+
    closed = {start: (0, [start])}
    start_node = ((0, start))
    fringe = []
@@ -128,7 +138,6 @@ def dijkstra(start, end):
       if v[1] == end:
          path, distance = closed[v[1]][1], v[0]
          draw_dijkstra_final_path(root, canvas, path)
-         #root.destroy()
          return path, distance
       for c in backing_dict[v[1]]:
          if c[0] not in closed:
@@ -136,41 +145,48 @@ def dijkstra(start, end):
             closed[c[0]] = (v[0] + c[1], closed[v[1]][1] + [c[0]])
             heappush(fringe, temp)
             draw_dijkstra_path(root, canvas, v[1], c[0])
+      update_count += 1
+      if update_count % 2500 == 0:
+         root.update()
    
    return None, None
 
 def a_star(start, end):
-    closed = {start: (0, [start])}
-    start_node = (taxicab(start, end), start, [start])
-    fringe = []
-    heapify(fringe)
-    heappush(fringe, start_node)
+   update_count = 0
 
-    while len(fringe) > 0:
+   closed = {start: (0, [start])}
+   start_node = (taxicab(start, end), start, [start])
+   fringe = []
+   heapify(fringe)
+   heappush(fringe, start_node)
+
+   while len(fringe) > 0:
       v = heappop(fringe)
 
       if v[1] == end:
          path, distance = closed[v[1]][1], v[0]
-         draw_astar_final_path(root, canvas, path, start)
+         draw_astar_final_path(astar_root, astar_canvas, path, start)
          return path, distance
       
       for c in backing_dict[v[1]]:
-        actual_dist = closed[v[1]][0] + taxicab(v[1], c[0])
-        if c[0] not in closed or closed[c[0]][0] > actual_dist:
+         actual_dist = closed[v[1]][0] + taxicab(v[1], c[0])
+         if c[0] not in closed or closed[c[0]][0] > actual_dist:
             estimated_dist = taxicab(c[0], end)
             heappush(fringe, (actual_dist + estimated_dist, c[0], v[2] + [c]))
             closed[c[0]] = (actual_dist, v[2] + [c])
-            draw_a_star_path(root, canvas, v[1], c[0])
+            draw_a_star_path(astar_root, astar_canvas, v[1], c[0])
+      update_count += 1
+      if update_count % 2500 == 0:
+         astar_root.update()
 
-    return None, None
+   return None, None
 
 print("Time to create data structure: " + str(dict_end - dict_start))
 
-canvas.pack(expand=True) #packing widgets places them on the board
-
+canvas.pack(expand=True)
 #sys.argv[1]
-city1 = "Leon"
-city2 = "Tucson"
+city1 = sys.argv[1]
+city2 = sys.argv[2]
 
 city_id1 = name_dict[city1]
 city_id2 = name_dict[city2]
@@ -182,17 +198,8 @@ dij_end = perf_counter()
 
 print(city1 + " to " + city2 + " with Dijkstra: " + str(dij_distance) + " in " + str(dij_end - dij_start))
 
-#root.mainloop()
-
-print()
-print()
-print()
-
-print("Dijkstra Path:\n---------------------\n" + str(dij_path))
-
-print()
-print()
-print()
+astar_canvas.pack(expand=True)
+draw_general_path(astar_root, astar_canvas)
 
 astar_start = perf_counter()
 astar_path, astar_distance = a_star(city_id1, city_id2)
@@ -200,5 +207,4 @@ astar_end = perf_counter()
 
 print(city1 + " to " + city2 + " with A*: " + str(astar_distance) + " in " + str(astar_end - astar_start))
 
-
-print("A* Path:\n---------------------\n" + str(astar_path))
+astar_root.mainloop()
