@@ -21,9 +21,9 @@ def calcd(node1, node2):
    # approximate great circle distance with law of cosines
    return acos( sin(y1)*sin(y2) + cos(y1)*cos(y2)*cos(x2-x1) ) * R
 
-edges = "Unit 4/Train Routes Files/rrEdges.txt"
-names = "Unit 4/Train Routes Files/rrNodeCity.txt"
-coords = "Unit 4/Train Routes Files/rrNodes.txt"
+edges = "rrEdges.txt"
+names = "rrNodeCity.txt"
+coords = "rrNodes.txt"
 
 dict_start = perf_counter()
 
