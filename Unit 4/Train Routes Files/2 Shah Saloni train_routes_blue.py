@@ -21,29 +21,25 @@ def calcd(node1, node2):
    # approximate great circle distance with law of cosines
    return acos( sin(y1)*sin(y2) + cos(y1)*cos(y2)*cos(x2-x1) ) * R
 
-edges = "Unit 4/Train Routes Files/rrEdges.txt"
-names = "Unit 4/Train Routes Files/rrNodeCity.txt"
-coords = "Unit 4/Train Routes Files/rrNodes.txt"
-
 dict_start = perf_counter()
 
 #dict for name to id
 name_dict = {}
-with open(names) as f:
+with open("rrNodeCity.txt") as f:
    for line in f:
       temp_list = line.split()
       name_dict[" ".join(temp_list[1:])] = temp_list[0]
 
 #dict for id to coord
 coord_dict = {}
-with open(coords) as f:
+with open("rrNodes.txt") as f:
    for line in f:
       temp_list = line.split()
       coord_dict[temp_list[0]] = (float(temp_list[1]), float(temp_list[2]))
 
 #tuple dict
 backing_dict = {}
-with open(edges) as f:
+with open("rrEdges.txt") as f:
    for line in f:
       id1, id2 = line.split()
       #need to calculate the distance between two points
@@ -66,7 +62,7 @@ canvas_dict_draw = {}
 canvas_dict_access = {}
 astar_canvas_dict_draw = {}
 astar_canvas_dict_access = {}
-with open(edges) as f:
+with open("rrEdges.txt") as f:
    root = tk.Tk()
    canvas = tk.Canvas(root, height=800, width=800, bg='white')
    astar_root = tk.Tk()
@@ -151,7 +147,6 @@ def dijkstra(start, end):
         update_count += 1
         if update_count % 2500 == 0:
             root.update()
-   
    return None, None
 
 def a_star(start, end):
@@ -172,6 +167,7 @@ def a_star(start, end):
          return path, distance
       
       for c in backing_dict[v[1]]:
+         draw_a_star_path(astar_root, astar_canvas, v[1], c[0])
          actual_dist = closed[v[1]][0] + taxicab(v[1], c[0])
          if c[0] not in closed or closed[c[0]][0] > actual_dist:
             estimated_dist = taxicab(c[0], end)
