@@ -127,10 +127,11 @@ def dijkstra(start, end):
    update_count = 0
 
    closed = {start: (0, [start])}
-   start_node = ((0, start))
+   start_node = (0, start)
    fringe = []
    heapify(fringe)
    heappush(fringe, start_node)
+   closed_set = set()
 
    while len(fringe) > 0:
       v = heappop(fringe)
@@ -139,15 +140,17 @@ def dijkstra(start, end):
          path, distance = closed[v[1]][1], v[0]
          draw_dijkstra_final_path(root, canvas, path)
          return path, distance
-      for c in backing_dict[v[1]]:
-         if c[0] not in closed:
-            temp = ((v[0] + c[1], c[0]))
-            closed[c[0]] = (v[0] + c[1], closed[v[1]][1] + [c[0]])
-            heappush(fringe, temp)
-            draw_dijkstra_path(root, canvas, v[1], c[0])
-      update_count += 1
-      if update_count % 2500 == 0:
-         root.update()
+      if v[1] not in closed_set:
+        closed_set.add(v[1])
+        for c in backing_dict[v[1]]:
+            if c[0] not in closed_set:
+                temp = ((v[0] + c[1], c[0]))
+                closed[c[0]] = (v[0] + c[1], closed[v[1]][1] + [c[0]])
+                heappush(fringe, temp)
+                draw_dijkstra_path(root, canvas, v[1], c[0])
+        update_count += 1
+        if update_count % 2500 == 0:
+            root.update()
    
    return None, None
 
