@@ -200,29 +200,62 @@ entry.withdraw()
 algorithm = simpledialog.askstring(title="Algorithm Choice", 
 prompt="Pick an algorithm to run:\n0: Dijkstra\n1: A*\n2: DFS\n3: ID-DFS\n4: Bidirectional Dijkstra\n5: Reverse A*\n6: BFS ?? Something else?? we'll see")
 
-if int(algorithm) == 0:
+if algorithm == "0":
    #run dijkstra
+   root.lift()
    start = perf_counter()
    path, dijkstra_distance = dijkstra(city_id1, city_id2)
    end = perf_counter()
    print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
-elif int(algorithm) == 1:
+   root.mainloop()
+elif algorithm == "1":
    #run a*
-   print()
-elif int(algorithm) == 2:
+   root.lift()
+   start = perf_counter()
+   path, astar_distance = a_star(city_id1, city_id2)
+   end = perf_counter()
+   print(city1 + " to " + city2 + " with A*: " + str(astar_distance) + " in " + str(end - start))
+   root.mainloop()
+elif algorithm == "2":
    #run dfs
-   print()
-elif int(algorithm) == 3:
+   root.lift()
+   start = perf_counter()
+   path, dijkstra_distance = dijkstra(city_id1, city_id2)
+   end = perf_counter()
+   print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
+   root.mainloop()
+elif algorithm == "3":
    #run id_dfs
-   print()
-elif int(algorithm) == 4:
+   root.lift()
+   start = perf_counter()
+   path, dijkstra_distance = dijkstra(city_id1, city_id2)
+   end = perf_counter()
+   print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
+   root.mainloop()
+elif algorithm == "4":
    #run bidir dijkstra
-   print()
-elif int(algorithm) == 5:
+   root.lift()
+   start = perf_counter()
+   path, dijkstra_distance = dijkstra(city_id1, city_id2)
+   end = perf_counter()
+   print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
+   root.mainloop()
+elif algorithm == "5":
    #run rev a*
-   print()
-elif int(algorithm) == 6:
+   root.lift()
+   start = perf_counter()
+   path, dijkstra_distance = dijkstra(city_id1, city_id2)
+   end = perf_counter()
+   print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
+   root.mainloop()
+elif algorithm == "6":
    #run [SOMETHING]
-   print()
+   root.lift()
+   start = perf_counter()
+   path, dijkstra_distance = dijkstra(city_id1, city_id2)
+   end = perf_counter()
+   print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
+   root.mainloop()
 else:
-   algorithm = simpledialog.askstring(title="INVALID INOUT", prompt="Sorry, that's not a valid algorithm. Please try again:")
+   tk.messagebox.showerror(title="INVALID INPUT", message="Sorry, that's not a valid algorithm. Please try again.")
+   root.destroy()
