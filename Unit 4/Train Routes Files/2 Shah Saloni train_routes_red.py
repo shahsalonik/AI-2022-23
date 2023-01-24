@@ -1,6 +1,7 @@
 from math import pi , acos , sin , cos
 from heapq import heapify, heappush, heappop
 from time import perf_counter
+from collections import deque
 import tkinter as tk
 from tkinter import simpledialog
 import time
@@ -172,6 +173,122 @@ def a_star(start, end):
 
    return None, None
 
+def construct_path(node, tracked_path):
+    path_list = [node]
+
+    while tracked_path[node] != "s":
+        path_list.append(tracked_path[node])
+        node = tracked_path[node]
+
+    return path_list[::-1]
+
+def DFS(start, end):
+   update_count = 0
+
+   fringe = deque()
+   closed = {start: (0, [start])}
+   start_node = (0, start, [start])
+   fringe.append(start_node)
+
+   while len(fringe) > 0:
+      v = fringe.popleft()
+
+      if v[1] == end:
+         path, distance = closed[v[1]][1], v[0]
+         #DRAW THE FINAL PATH
+         return distance
+      
+      for c in backing_dict[v[1]]:
+         print("clsoed", closed[v[1]][0])
+         actual_dist = closed[v[1]][0] + taxicab(v[1], c[0])
+         if c[0] not in closed or closed[c[0]] > actual_dist:
+            fringe.append((actual_dist, c[0], v[2] + [c[0]]))
+            closed[c[0]] = (actual_dist, v[2] + [c[0]])
+            #DRAW A LINE
+      update_count += 1
+      if update_count % 2500 == 0:
+         root.update()
+
+   return None
+
+'''
+def k_DFS(start_state, k):
+    fringe = []
+    start_node = ((start_state, 0, set()))
+    start_node[2].add(start_state)
+    fringe.append(start_node)
+    
+    while fringe:
+        v = fringe.pop()
+
+        if v[0] == end:
+            return v
+        if v[1] < k:
+            for c in get_children(v[0]):
+                if c not in v[2]:
+                    temp_set = v[2].copy()
+                    temp_set.add(c)
+                    temp = ((c, v[1] + 1, temp_set))
+                    fringe.append(temp)
+    return None
+
+def ID_DFS(start_state):
+    max_depth = 0
+    result = None
+    while result is None:
+        result = k_DFS(start_state, max_depth)
+        max_depth += 1
+    return result
+
+def BFS(start_node):
+    fringe = deque()
+    visited = set()
+    fringe.append((0, start_node))
+    visited.add(start_node)
+    while fringe:
+        v = fringe.popleft()
+        if v[1] == end:
+            return v
+        for x in get_children(v[1]):
+            if x not in visited:
+                fringe.append((v[0] + 1, x))
+                visited.add(x)
+    return None
+'''
+
+def bidir_dijkstra(start, end):
+   update_count = 0
+
+   closed_start = {start: (0, [start])}
+   closed_end = {end: (0, [start])}
+   start_node = (0, start, [start])
+   end_node = (0, end, [end])
+   start_fringe = []
+   end_fringe = []
+   heapify(start_fringe)
+   heapify(end_fringe)
+   heappush(start_fringe, start_node)
+   heappush(end_fringe, end_node)
+
+   visited = set()
+
+   while len(start_fringe) > 0 and len(end_fringe) > 0:
+      s_v = heappop(start_fringe)
+
+      if s_v in closed_end:
+         path = s_v[2] # + reversed list from closed_goal[v_start[1]][1][1:]
+         distance = s_v[0] + closed_end[s_v[1]][0]
+         #DRAW FINAL PATH
+         return distance
+      visited.add(s_v[1])
+      for c in backing_dict[s_v[1]]:
+         actual_dist = closed_start[s_v[1]][0] + taxicab(s_v[1], c[0])
+         
+
+
+
+   return None
+
 print("Time to create data structure: " + str(dict_end - dict_start))
 
 canvas.pack(expand=True)
@@ -207,7 +324,7 @@ if algorithm == "0":
    path, dijkstra_distance = dijkstra(city_id1, city_id2)
    end = perf_counter()
    print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
-   root.mainloop()
+   #root.mainloop()
 elif algorithm == "1":
    #run a*
    root.lift()
@@ -215,39 +332,39 @@ elif algorithm == "1":
    path, astar_distance = a_star(city_id1, city_id2)
    end = perf_counter()
    print(city1 + " to " + city2 + " with A*: " + str(astar_distance) + " in " + str(end - start))
-   root.mainloop()
+   #root.mainloop()
 elif algorithm == "2":
    #run dfs
    root.lift()
    start = perf_counter()
-   path, dijkstra_distance = dijkstra(city_id1, city_id2)
+   dfs_distance = DFS(city_id1, city_id2)
    end = perf_counter()
-   print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
-   root.mainloop()
+   print(city1 + " to " + city2 + " with DFS: " + str(dfs_distance) + " in " + str(end - start))
+   #root.mainloop()
 elif algorithm == "3":
    #run id_dfs
    root.lift()
    start = perf_counter()
    path, dijkstra_distance = dijkstra(city_id1, city_id2)
    end = perf_counter()
-   print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
-   root.mainloop()
+   print(city1 + " to " + city2 + " with ID-DFS: " + str(dijkstra_distance) + " in " + str(end - start))
+   #root.mainloop()
 elif algorithm == "4":
    #run bidir dijkstra
    root.lift()
    start = perf_counter()
    path, dijkstra_distance = dijkstra(city_id1, city_id2)
    end = perf_counter()
-   print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
-   root.mainloop()
+   print(city1 + " to " + city2 + " with Bidirectional Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
+   #root.mainloop()
 elif algorithm == "5":
    #run rev a*
    root.lift()
    start = perf_counter()
    path, dijkstra_distance = dijkstra(city_id1, city_id2)
    end = perf_counter()
-   print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
-   root.mainloop()
+   print(city1 + " to " + city2 + " with Reverse A*: " + str(dijkstra_distance) + " in " + str(end - start))
+   #root.mainloop()
 elif algorithm == "6":
    #run [SOMETHING]
    root.lift()
@@ -255,7 +372,9 @@ elif algorithm == "6":
    path, dijkstra_distance = dijkstra(city_id1, city_id2)
    end = perf_counter()
    print(city1 + " to " + city2 + " with Dijkstra: " + str(dijkstra_distance) + " in " + str(end - start))
-   root.mainloop()
+   #root.mainloop()
 else:
    tk.messagebox.showerror(title="INVALID INPUT", message="Sorry, that's not a valid algorithm. Please try again.")
    root.destroy()
+
+#root.mainloop()
