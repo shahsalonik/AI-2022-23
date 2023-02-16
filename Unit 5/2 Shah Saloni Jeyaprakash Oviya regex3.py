@@ -14,14 +14,14 @@ idx = int(args[0])-50
 #Q59: Match all binary strings containing neither 101 nor 111 as substrings.
 
 myRegexLst = [
-    r"/\b\w*(\w)\w*\1\w*\b/i",
-    r"/\b\w*(\w)\w*(\1\w*){3}\b/i",
-    r"/^([01])([01]*\1)*$/",
+    r"/\w*(\w)\w*\1\w*/i",
+    r"/\w*(\w)\w*(\1\w*){3}/i",
+    r"/^(0|1)([01]*\1)*$/",
     r"/(?=\b\w{6}\b)\w*cat\w*/i",
-    r"/(?=\b\w{5,9}\b)(?=\w*bri\w*)\w*ing\w*\b/i",
+    r"/(?=\b\w{5,9}\b)(?=\w*bri)\w*ing\w*/i",
     r"/\b(?!\w*cat.*)\w{6}\b/i",
-    r"/(?!\w*(\w)\w*\1\w*)\b\w+/i",
-    r"/^(?![01]*10011)[01]*$/",
+    r"/(?!\w*(\w)\w*\1.*)\b\w+/i",
+    r"/^(1(?!0011)|0)*$/",
     r"/\w*([aeiou])(?!\1)[aeiou]\w*/i",
     r"/^(1(?!11|01)|0)*$/"
 ]
