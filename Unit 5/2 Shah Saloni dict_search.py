@@ -9,7 +9,7 @@ import sys, re
 #7 (DONE)
 #8 (DONE)
 #9 (DONE)
-#10
+#10 (DONE)
 
 filename = sys.argv[1]
 word_list = []
@@ -249,7 +249,7 @@ def max_consonant_count(word):
     return consonant_count
 
 #QUESTION 9:
-my_regex = r"^\w*[bcdfghjklmnpqrstvwxyz]\w*$"
+my_regex = r"^\w*[b-df-hj-np-tv-z]\w*$"
 reg = re.compile(my_regex)
 
 exp_list = []
@@ -263,7 +263,7 @@ for x in word_list:
         if max_cons > max_consonants:
             max_consonants = max_cons
 
-my_regex = r"^(\w*[bcdfghjklmnpqrstvwxyz]){" + str(max_consonants) + r"}\w*$"
+my_regex = r"^(\w*[b-df-hj-np-tv-z]){" + str(max_consonants) + r"}\w*$"
 reg = re.compile(my_regex)
 
 for y in exp_list:
@@ -273,15 +273,21 @@ for y in exp_list:
 print_func(9, my_regex, final_list)
 
 #QUESTION 10:
-my_regex = "/^(?!\w*(\w)(\w*\1){2})\w*$/"
+my_regex = r"^(?!\w*(\w)(\w*\1){2})\w*$"
+reg = re.compile(my_regex)
 
-final_list = re_func_1_5(word_list, my_regex)
-max_length = len(final_list[0])
-max_length_list = []
-for x in final_list:
-    if len(x) > max_length:
-        max_length = len(x)
-for y in final_list:
+exp_list = []
+final_list = []
+max_length = 0
+
+for x in word_list:
+    for result in reg.finditer(x):
+        exp_list.append(x)
+        if len(x) > max_length:
+            max_length = len(x)
+
+for y in exp_list:
     if len(y) == max_length:
-        max_length_list.append(y)
-print_func(10, my_regex, max_length_list)
+        final_list.append(y)     
+
+print_func(10, my_regex, final_list)
