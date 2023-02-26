@@ -1,16 +1,5 @@
 import sys, re
 
-#1 (DONE)
-#2 (DONE)
-#3
-#4
-#5 (DONE)
-#6 (DONE)
-#7 (DONE)
-#8 (DONE)
-#9 (DONE)
-#10 (DONE)
-
 filename = sys.argv[1]
 word_list = []
 
@@ -89,16 +78,36 @@ for y in final_list:
 print_func(2, my_regex, max_length_list)
 
 #QUESTION 3:
-my_regex = "/^(\w)(?!\w*(\w*\1\w))(?=\w*\1)$/"
+my_regex = r"^(\w)(?!\w*(\w*\1\w))(?=\w*\1)\w*$"
+reg = re.compile(my_regex)
 
-final_list = re_func_1_5(word_list, my_regex)
+exp_list = []
+final_list = []
+max_length = 0
+
+for x in word_list:
+    for result in reg.finditer(x):
+        exp_list.append(x)
+        if len(x) > max_length:
+            max_length = len(x)
+
+for y in exp_list:
+    if len(y) == max_length:
+        final_list.append(y)
+
 print_func(3, my_regex, final_list)
 
 #QUESTION 4:
-my_regex = "/^(\w)(\w)(\w)\w*$(?<=\3\2\1)/"
+my_regex = r"^((\w)(\w)(\w)\w*\4\3\2|(\w)(\w)\w?\6\5|(\w)\w\7)$"
+reg = re.compile(my_regex)
 
-final_list = re_func_1_5(word_list, my_regex)
-print_func(4, my_regex, final_list)
+exp_list = []
+
+for x in word_list:
+    for result in reg.finditer(x):
+        exp_list.append(x)
+
+print_func(4, my_regex, exp_list)
 
 #QUESTION 5 (DONE):
 my_regex = "/^[^bt]*(bt|tb)[^bt]*$/"
