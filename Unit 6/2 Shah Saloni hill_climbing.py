@@ -2,13 +2,22 @@ import random
 import sys
 from math import log
 
-encode = 'PF HACYHTTRQ VF N PBYYRPGVBA BS SERR YRNEAVAT NPGVIVGVRF GUNG GRNPU PBZCHGRE FPVRAPR GUEBHTU RATNTVAT TNZRF NAQ CHMMYRF GUNG HFR PNEQF, FGEVAT, PENLBAF NAQ YBGF BS EHAAVAT NEBHAQ. JR BEVTVANYYL QRIRYBCRQ GUVF FB GUNG LBHAT FGHQRAGF PBHYQ QVIR URNQ-SVEFG VAGB PBZCHGRE FPVRAPR, RKCREVRAPVAT GUR XVAQF BS DHRFGVBAF NAQ PUNYYRATRF GUNG PBZCHGRE FPVRAGVFGF RKCREVRAPR, OHG JVGUBHG UNIVAT GB YRNEA CEBTENZZVAT SVEFG. GUR PBYYRPGVBA JNF BEVTVANYYL VAGRAQRQ NF N ERFBHEPR SBE BHGERNPU NAQ RKGRAFVBA, OHG JVGU GUR NQBCGVBA BS PBZCHGVAT NAQ PBZCHGNGVBANY GUVAXVAT VAGB ZNAL PYNFFEBBZF NEBHAQ GUR JBEYQ, VG VF ABJ JVQRYL HFRQ SBE GRNPUVAT. GUR ZNGREVNY UNF ORRA HFRQ VA ZNAL PBAGRKGF BHGFVQR GUR PYNFFEBBZ NF JRYY, VAPYHQVAT FPVRAPR FUBJF, GNYXF SBE FRAVBE PVGVMRAF, NAQ FCRPVNY RIRAGF. GUNAXF GB TRAREBHF FCBAFBEFUVCF JR UNIR ORRA NOYR GB PERNGR NFFBPVNGRQ ERFBHEPRF FHPU NF GUR IVQRBF, JUVPU NER VAGRAQRQ GB URYC GRNPUREF FRR UBJ GUR NPGVIVGVRF JBEX (CYRNFR QBA’G FUBJ GURZ GB LBHE PYNFFRF – YRG GURZ RKCREVRAPR GUR NPGVIVGVRF GURZFRYIRF!). NYY BS GUR NPGVIVGVRF GUNG JR CEBIVQR NER BCRA FBHEPR – GURL NER ERYRNFRQ HAQRE N PERNGVIR PBZZBAF NGGEVOHGVBA-FUNERNYVXR YVPRAPR, FB LBH PNA PBCL, FUNER NAQ ZBQVSL GUR ZNGREVNY. SBE NA RKCYNANGVBA BA GUR PBAARPGVBAF ORGJRRA PF HACYHTTRQ NAQ PBZCHGNGVBANY GUVAXVAT FXVYYF, FRR BHE PBZCHGNGVBANY GUVAXVAT NAQ PF HACYHTTRQ CNTR. GB IVRJ GUR GRNZ BS PBAGEVOHGBEF JUB JBEX BA GUVF CEBWRPG, FRR BHE CRBCYR CNTR. SBE QRGNVYF BA UBJ GB PBAGNPG HF, FRR BHE PBAGNPG HF CNTR. SBE ZBER VASBEZNGVBA NOBHG GUR CEVAPVCYRF ORUVAQ PF HACYHTTRQ, FRR BHE CEVAPVCYRF CNTR.'
-ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+encode = sys.argv[1]
+ALPHABET = "ETAOINSHRDLCUMWFGYPBVKXJQZ"
 cipher_dict = {}
 decipher_dict = {}
 cipher_fitness_dict = {}
 n_grams_file = "ngrams.txt"
 n_grams_dict = {}
+
+POPULATION_SIZE = 500
+NUM_CLONES = 1
+TOURNAMENT_SIZE = 20
+TOURNAMENT_WIN_PROBABILITY = 0.75
+CROSSOVER_LOCATIONS = 5
+MUTATION_RATE = 0.8
+N = 3
+ITERATIONS = 500
 
 def decipher_dict_func(cipher):
     for x in range(len(cipher)):
@@ -57,7 +66,7 @@ def fitness(n_value, message_string, cipher_string):
         n_gram_list = [word[char : char2] for char in range(len(word)) for char2 in range(char + 1, len(word) + 1) if len(word[char : char2]) == n_value]
 
         for n_gram_word in n_gram_list:
-            if n_gram_word in n_grams_dict.keys():
+            if n_gram_word in n_grams_dict:
                 to_add = n_grams_dict[n_gram_word]
                 if to_add > 0:
                     n_gram_sum += log(to_add, 2)
@@ -65,38 +74,114 @@ def fitness(n_value, message_string, cipher_string):
     cipher_fitness_dict[cipher_string] = n_gram_sum
     return n_gram_sum
 
-def hill_climbing(message_string):
-    alphabet_list = list(ALPHABET)
-    random.shuffle(alphabet_list)
-    cipher_string = ''.join(alphabet_list)
+def generate_population():
+    population_set = set()
 
-    message_string = decode_func(message_string, decipher_dict_func(cipher_string))
+    while len(population_set) < POPULATION_SIZE:
+        alphabet_list = list(ALPHABET)
+        random.shuffle(alphabet_list)
+        cipher_string = ''.join(alphabet_list)
+        population_set.add(cipher_string)
+    
+    return population_set
 
-    score = fitness(3, message_string, cipher_string)
+def tournament_genetic_algorithm(population, message_string, iteration_number):
+    if iteration_number >= ITERATIONS:
+        return
+    
+    new_population = set()
+    population_list = []
 
-    while True:
+    for cipher in population:
+        score = fitness(N, message_string, cipher)
+        population_list.append((score, cipher))
+    
+    population_list = sorted(population_list, reverse = True)
 
-        swap_index1, swap_index2 = random.sample(range(26),2)
+    for k in range(NUM_CLONES):
+        new_population.add(population_list[k][1])
+    
+    tournament1, tournament2 = tournament_selection(population_list, message_string)
+
+    while len(new_population) < POPULATION_SIZE:
+        for c in tournament1:
+            if random.random() < TOURNAMENT_WIN_PROBABILITY:
+                parent1 = c
+                break
+        
+        for c2 in tournament2:
+            if random.random() < TOURNAMENT_WIN_PROBABILITY:
+                parent2 = c2
+                break
+        
+        child = breeding(parent1, parent2)
+
+        new_population.add(mutate(child)) 
+
+    print("Iteration " + str(iteration_number + 1) + ": " + decode_func(message_string, decipher_dict_func(population_list[0][1])) + "\n")
+    return tournament_genetic_algorithm(new_population, message_string, iteration_number + 1)
+
+def tournament_selection(population_list, message):
+    temp_set = set(random.sample(population_list, 2 * TOURNAMENT_SIZE))
+    competitors = set()
+    tournament1, tournament2 = [], []
+
+    for x in temp_set:
+        competitors.add(x[1])
+
+    for ciphers_1 in range(TOURNAMENT_SIZE):
+        cipher_to_add = competitors.pop()
+        score = fitness(N, message, cipher_to_add)
+        tournament1.append((score, cipher_to_add))
+    tournament1 = sorted(tournament1, reverse = True)
+
+    for ciphers_2 in range(TOURNAMENT_SIZE):
+        cipher_to_add2 = competitors.pop()
+        score2 = fitness(N, message, cipher_to_add2)
+        tournament2.append((score2, cipher_to_add2))
+    tournament2 = sorted(tournament2, reverse = True)
+
+    return tournament1, tournament2
+
+def parents(tournament_list):
+    for x in tournament_list:
+        if random.random() < TOURNAMENT_WIN_PROBABILITY:
+            return x
+
+def mutate(child_cipher):
+    if random.random() < MUTATION_RATE:
+        swap_index1, swap_index2 = random.sample(range(26), 2)
         
         if swap_index1 > swap_index2:
             to_swap = swap_index1
             swap_index1 = swap_index2
             swap_index2 = to_swap
-        
-        new_cipher_code = cipher_string[0 : swap_index1] + cipher_string[swap_index2] + cipher_string[swap_index1 + 1 : swap_index2] + cipher_string[swap_index1] + cipher_string[swap_index2 + 1:]
+            
+        new_cipher_code = child_cipher[0 : swap_index1] + child_cipher[swap_index2] + child_cipher[swap_index1 + 1 : swap_index2] + child_cipher[swap_index1] + child_cipher[swap_index2 + 1:]
+        return new_cipher_code
+    else:
+        return child_cipher
 
-        new_score = fitness(3, message_string, new_cipher_code)
+def breeding(parent1, parent2):
+    child = [-1] * 26
+    crossover_points = random.sample(range(26), CROSSOVER_LOCATIONS)
+    crossover_letters = []
 
-        if new_score > score:
-            score = new_score
-            cipher_string = new_cipher_code
-            print(score, cipher_string)
-            print(decode_func(message_string, decipher_dict_func(new_cipher_code)))
-            print()
+    for n in crossover_points:
+        #print(child, parent1)
+        child[n] = parent1[1][n]
+        crossover_letters.append(parent1[1][n])
+    
+    k = 0
+    for i in range(26):
+        if child[i] == -1:
+            while (parent2[1][k] in crossover_letters or parent2[1][k] in child) and k < 26:
+                k += 1
+            child[i] = parent2[1][k]
+            k += 1
+    
+    child = ''.join(child)
 
-#print(encode_func(encode))
-#print(decode_func(encode_func(encode)))
-#print(fitness(3, encode, new_cipher))
-#print(fitness(4, encode, new_cipher))
+    return child
 
-hill_climbing(encode)
+tournament_genetic_algorithm(generate_population(), encode, 0)
