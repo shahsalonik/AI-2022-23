@@ -1,0 +1,18 @@
+1) How close does k-means get to identifying the six separate types of stars?
+It gets pretty close to identifying the six separate types of stars--there are some groups that are sorted really well and others that are mixed.
+
+2) What variation do you see across multiple runs of your code? Does the algorithm find exactly the same groups
+every time? If you tried 5 or 7 means, what difference did that make?
+It doesn't sort them all into the same groups each time, always varying slightly. With 5 means, it sorted some types of stars into the same groups, and with 7 means, it split them up some more.
+
+3) Look back at the Kaggle page, and look at the stellar diagrams given under “Dataset Info”. If you imagine six
+means moving around these images and gathering stars close to them as groups, which type of star seems least
+likely to make a successful cluster? Does this match what you saw in your runs (ie, is that type of star more
+frequently distributed among different k-means clusters?)
+Type 3 usually seems like the one appearing in the most groups, which matches what the diagrams look like. In those, type 3 seems like it has overlapping qualities with the other groups.
+
+4) After reading the original info page that described using this algorithm on truck driver data as well as the
+experience you have here, briefly discuss the strengths and weaknesses of this algorithm as you currently
+understand them.
+Strengths of k-means: easy implementation and adaptation to different problems, usable for large amount of data
+Weaknesses of k-means: manually choosing the value of k, can have many outliers
