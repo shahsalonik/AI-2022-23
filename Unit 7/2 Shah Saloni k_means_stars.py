@@ -15,31 +15,17 @@ with open(filename, "r") as f:
         else:
             count += 1
 
-def k_means(k_value):
-    k_elements = random.sample(star_info_dict.keys(), k_value)
+def k_means(k_value, k_elems):
     k_mean_dict = {}
     
-    for i in k_elements:
+    for i in k_elems:
         k_mean_dict[i] = []
 
-    while True:
-        for star in star_info_dict.keys():
-            closest_k = k_value_closest(star, k_elements)
-            if closest_k in k_mean_dict.keys():
-                k_mean_dict[closest_k].append(star)
-            else:
-                k_mean_dict[closest_k] = []
-                k_mean_dict[closest_k].append(star)
-        
-        stable, new_k_elements = recalculate_k_means(k_mean_dict, k_elements)
-
-        if stable is True:
-            return print_type(k_mean_dict)
-        else:
-            k_elements = new_k_elements
-            k_mean_dict = {}
-            for i in k_elements:
-                k_mean_dict[i] = []
+    for star in star_info_dict.keys():
+        closest_k = k_value_closest(star, k_elems)
+        k_mean_dict[closest_k].append(star)
+    
+    return k_mean_dict
 
 def recalculate_k_means(k_dict, k_elems):
     new_k_elems = []
@@ -50,8 +36,6 @@ def recalculate_k_means(k_dict, k_elems):
             new_lum += t[1]
             new_rad += t[2]
             abs_mag += t[3]
-        #print("T and S")
-        #print(len(s))
         new_temp = float(new_temp / len(s))
         new_lum = float(new_lum / len(s))
         new_rad = float(new_rad / len(s))
@@ -67,8 +51,8 @@ def recalculate_k_means(k_dict, k_elems):
     return is_not_stable, new_k_elems
 
 def k_value_closest(star_values, k_element_list):
-    min_distance = None
-    result_k = None
+    min_distance = distance_formula(star_values, k_element_list[0])
+    result_k = k_element_list[0]
     for k in k_element_list:
         if min_distance == None:
             min_distance = distance_formula(star_values, k)
@@ -91,4 +75,12 @@ def print_type(k_dict_final):
             print(str(s) + ": Type " + star_info_dict[s])
         print()
 
-k_means(6)
+k_elements = random.sample(star_info_dict.keys(), 6)
+is_not_stable = True
+
+while is_not_stable:
+    new_k_mean_dict = k_means(6, k_elements)
+    is_not_stable, new_k_elements = recalculate_k_means(new_k_mean_dict, k_elements)
+    k_elements = new_k_elements
+
+print_type(new_k_mean_dict)
