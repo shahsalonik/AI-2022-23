@@ -7,44 +7,49 @@ distance_dict = {}
 color_count = {}
 color_loc_dict = {}
 
-img = Image.open("puppy.jpg") # Just put the local filename in quotes.
-img2 = Image.open("puppy.jpg") # Just put the local filename in quotes.
+img = Image.open("panda.jpg")
+img2 = Image.open("panda.jpg") # Just put the local filename in quotes.
+img3 = Image.open("panda.jpg") # Just put the local filename in quotes.
 #img.show() # Send the image to your OS to be displayed as a temporary file
 #img2.show()
-print(img.size) # A tuple. Note: width first THEN height. PIL goes [x, y] with y counting from the top of the frame.
-pix = img.load() # Pix is a pixel manipulation object; we can assign pixel values and img will change as we do so.
-#pix2 = img2.load()
+print(img2.size) # A tuple. Note: width first THEN height. PIL goes [x, y] with y counting from the top of the frame.
+pix = img.load()
+pix2 = img2.load() # Pix is a pixel manipulation object; we can assign pixel values and img will change as we do so.
+pix3 = img3.load()
 
-
-'''
-# naive 27 color quantization
-for w in range(img.size[0]):
-    for l in range(img.size[1]):
-        new_list = []
-        for x in pix[w,l]:
-            y = 0
-            if x < (255 // 3):
+def naive_27(img, p):
+    for w in range(img.size[0]):
+        for l in range(img.size[1]):
+            new_list = []
+            for x in p[w,l]:
                 y = 0
-            elif x > (255 * 2 // 3):
-                y = 255
-            else:
-                y = 127
-            new_list.append(y)
-        pix[w,l] = tuple(new_list)
+                if x < (255 // 3):
+                    y = 0
+                elif x > (255 * 2 // 3):
+                    y = 255
+                else:
+                    y = 127
+                new_list.append(y)
+            p[w,l] = tuple(new_list)
+    img.show()
+    img.save("naive_27_color.png")
 
-# naive 8 color quantization
-for w in range(img2.size[0]):
-    for l in range(img2.size[1]):
-        new_list = []
-        for x in pix2[w,l]:
-            y = 0
-            if x < 128:
+def naive_8(img, p):
+    # naive 8 color quantization
+    for w in range(img2.size[0]):
+        for l in range(img2.size[1]):
+            new_list = []
+            for x in p[w,l]:
                 y = 0
-            else:
-                y = 255
-            new_list.append(y)
-        pix2[w,l] = tuple(new_list)
-'''
+                if x < 128:
+                    y = 0
+                else:
+                    y = 255
+                new_list.append(y)
+            p[w,l] = tuple(new_list)
+    img.show()
+    img.save("naive_8_color.png")
+
 coord_list = []
 
 for w in range(img.size[0]):
@@ -133,4 +138,4 @@ for fin_col in k_elements:
             pix[loc[0], loc[1]] = k_fin_round
 
 img.show()
-img.save("k_means_8.png")
+img.save("k_means_27_panda.png")
