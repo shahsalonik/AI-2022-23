@@ -1,25 +1,22 @@
 from PIL import Image
 import random
+import sys
+from time import perf_counter
 
-K_VALUE = 27
+K_VALUE = int(sys.argv[2])
 
 distance_dict = {}
 color_count = {}
 color_loc_dict = {}
 
-img = Image.open("panda.jpg")
-img2 = Image.open("panda.jpg") # Just put the local filename in quotes.
-img3 = Image.open("panda.jpg") # Just put the local filename in quotes.
+img = Image.open(sys.argv[1])
 #img.show() # Send the image to your OS to be displayed as a temporary file
 #img2.show()
-print(img2.size) # A tuple. Note: width first THEN height. PIL goes [x, y] with y counting from the top of the frame.
 pix = img.load()
-pix2 = img2.load() # Pix is a pixel manipulation object; we can assign pixel values and img will change as we do so.
-pix3 = img3.load()
 
-def naive_27(img, p):
-    for w in range(img.size[0]):
-        for l in range(img.size[1]):
+def naive_27(image, p):
+    for w in range(image.size[0]):
+        for l in range(image.size[1]):
             new_list = []
             for x in p[w,l]:
                 y = 0
@@ -31,13 +28,13 @@ def naive_27(img, p):
                     y = 127
                 new_list.append(y)
             p[w,l] = tuple(new_list)
-    img.show()
-    img.save("naive_27_color.png")
+    image.show()
+    image.save("kmeansout.png")
 
-def naive_8(img, p):
+def naive_8(image, p):
     # naive 8 color quantization
-    for w in range(img2.size[0]):
-        for l in range(img2.size[1]):
+    for w in range(image.size[0]):
+        for l in range(image.size[1]):
             new_list = []
             for x in p[w,l]:
                 y = 0
@@ -47,14 +44,16 @@ def naive_8(img, p):
                     y = 255
                 new_list.append(y)
             p[w,l] = tuple(new_list)
-    img.show()
-    img.save("naive_8_color.png")
+    image.show()
+    image.save("kmeansout.png")
 
 coord_list = []
+pix_list = []
 
 for w in range(img.size[0]):
     for l in range(img.size[1]):
         coord_list.append((w, l))
+        pix_list.append(pix[w,l])
         if pix[w,l] in color_loc_dict:
             color_loc_dict[pix[w,l]].append((w,l))
         else:
@@ -83,6 +82,27 @@ def k_means(k_elems):
         k_mean_dict[closest_k].append(c)
     
     return k_mean_dict
+
+def k_means_plus_plus(k_value):
+    k_element_list = [pix_list[random.randint(0, len(pix_list) - 1)]]
+
+    while len(k_element_list) < k_value:
+        calc_distance = [0] * len(pix_list)
+        for ind, pixel in enumerate(pix_list):
+            min_dist = float("inf")
+            for k_elem in k_element_list:
+                dist = ((pixel[0] - k_elem[0]) ** 2) + ((pixel[1] - k_elem[1]) ** 2)
+                if dist < min_dist:
+                    min_dist = dist
+            calc_distance[ind] = min_dist
+
+        total_distance = sum(calc_distance)
+        weighted_probability_list = [y / total_distance for y in calc_distance]
+
+        k_elem_to_add = pix_list[random.choices(range(len(pix_list)), weights = weighted_probability_list)[0]]
+        k_element_list.append(k_elem_to_add)
+
+    return k_element_list
 
 def k_value_closest(pixel, k_element_list):
     min_distance = distance_formula(pixel, k_element_list[0])
@@ -116,6 +136,7 @@ def recalculate_k_means(k_dict, k_elems):
     
     return is_not_stable, new_k_elems
 
+#MUST RETURN SQUARED DISTANCE
 def distance_formula(pixel, k_mean_value):
     distance = 0
     distance += ((pixel[0] - k_mean_value[0]) ** 2)
@@ -123,6 +144,30 @@ def distance_formula(pixel, k_mean_value):
     distance += ((pixel[2] - k_mean_value[2]) ** 2)
     return distance
 
+def dithering(new_image, old_image):
+    old_pix = old_image.load()
+    new_pix = new_image.load()
+    width, height = new_image.size
+    for h in range(height):
+        for w in range(width):
+            old_pixel = new_pix[w, h]
+            new_pixel = old_pix[w, h]
+            new_pix[w, h] = new_pixel
+            quant_error = tuple([old_pixel[i] - new_pixel[i] for i in range(3)])
+            if w + 1 < width:
+                new_pix[w + 1, h] = tuple([int(new_pix[w + 1, h][i] + quant_error[i] * 0.4375) for i in range(3)])
+            if (w + 1 < width) and (h + 1 < height):
+                new_pix[w + 1, h + 1] = tuple([int(new_pix[w + 1, h + 1][i] + quant_error[i] * 0.0625) for i in range(3)])
+            if h + 1 < height:
+                new_pix[w, h + 1] = tuple([int(new_pix[w, h + 1][i] + quant_error[i] * 0.3125) for i in range(3)])
+            if (h + 1 < height) and (w - 1 >= 0): 
+                new_pix[w - 1, h + 1] = tuple([int(new_pix[w - 1, h + 1][i] + quant_error[i] * 0.1875) for i in range(3)])
+    return new_image
+
+start = perf_counter()
+
+#random.sample(color_count.keys(), K_VALUE)
+#k_means_plus_plus(K_VALUE)
 k_elements = random.sample(color_count.keys(), K_VALUE)
 is_not_stable = True
 
@@ -131,11 +176,38 @@ while is_not_stable:
     is_not_stable, new_k_elements = recalculate_k_means(new_k_mean_dict, k_elements)
     k_elements = new_k_elements
 
+#round final rgb values
 for fin_col in k_elements:
-    k_fin_round = (round(fin_col[0]), round(fin_col[1]), round(fin_col[2]))
-    for color in new_k_mean_dict[fin_col]:
-        for loc in color_loc_dict[color]:
-            pix[loc[0], loc[1]] = k_fin_round
+    new_fin0 = round(fin_col[0])
+    new_fin1 = round(fin_col[1])
+    new_fin2 = round(fin_col[2])
+    k_fin_round = (new_fin0, new_fin1, new_fin2)
+    for c in new_k_mean_dict[fin_col]:
+        for c_loc in color_loc_dict[c]:
+            pix[c_loc[0], c_loc[1]] = k_fin_round
 
-img.show()
-img.save("k_means_27_panda.png")
+#img = dithering(img.copy(), img)
+
+# adding color palette at the bottom of the image
+color_palette = list(set(pix_list))
+box = img.size[0] // K_VALUE
+
+color_images = Image.new("RGB", (img.size[0], img.size[1] + box))
+
+new_img = color_images.load()
+
+for x in range(img.size[0]):
+    for y in range(img.size[1]):
+        new_img[x, y] = pix[x, y]
+    
+for i in range(K_VALUE):
+    for w in range(box):
+        for l in range(box):
+            new_img[w + (i * box), l + img.size[1]] = color_palette[i]
+
+color_images.show()
+color_images.save("kmeansout.png")
+
+end = perf_counter()
+
+print("Total time taken: " + str(end - start))
