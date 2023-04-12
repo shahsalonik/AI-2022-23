@@ -9,6 +9,12 @@ distance_dict = {}
 color_count = {}
 color_loc_dict = {}
 
+# consider implementing a matrix (what the sub said today)
+# how would that work
+# smth like a tuple of tuples possibly?:
+
+weighted_matrix = ((1, 0, 7/16), (-1, 1, 3/16), (0, 1, 5/16), (1, 1, 1/16))
+
 img = Image.open(sys.argv[1])
 #img.show() # Send the image to your OS to be displayed as a temporary file
 #img2.show()
@@ -144,7 +150,7 @@ def distance_formula(pixel, k_mean_value):
     distance += ((pixel[2] - k_mean_value[2]) ** 2)
     return distance
 
-def dithering(new_image, old_image):
+def dithering_old(new_image, old_image):
     old_pix = old_image.load()
     new_pix = new_image.load()
     width, height = new_image.size
@@ -164,11 +170,47 @@ def dithering(new_image, old_image):
                 new_pix[w - 1, h + 1] = tuple([int(new_pix[w - 1, h + 1][i] + quant_error[i] * 0.1875) for i in range(3)])
     return new_image
 
+def dithering_new(color_list, image):
+    width, height = image.size
+    local_pix = image.load()
+
+    for h in range(height):
+        for w in range(width):
+            old_pixel = local_pix[w, h]
+
+            # find the pixel with the smallest error
+            ind = 0
+            min_error = float('inf')
+            for i, num in enumerate(color_list):
+                dist = distance_formula(old_pixel, num)
+                if dist < min_error:
+                    ind = i
+                    min_error = dist
+            new_pixel = color_list[ind]
+
+            quant_error = tuple([old_pixel[x] - new_pixel[x] for x in range(3)])
+
+            for add_w, add_h, weight in weighted_matrix:
+                added_w = add_w + w
+                added_h = add_h + h
+
+                if abs(added_w) < width and abs(added_h) < height:
+                    new_pixel = list(local_pix[added_w, added_h][i] + quant_error[i] * weight for i in range(3))
+                    new_pixel = tuple((round(new_pixel[0]), round(new_pixel[1]), round(new_pixel[2])))
+                    local_pix[added_w, added_h] = new_pixel
+
+    return image
+
 start = perf_counter()
 
-#random.sample(color_count.keys(), K_VALUE)
-#k_means_plus_plus(K_VALUE)
-k_elements = random.sample(color_count.keys(), K_VALUE)
+frequency_list = []
+
+for pix_val, freq in color_count.items():
+    frequency_list.append((freq, pix_val))
+
+frequency_list.sort(reverse = True)
+
+k_elements = [frequency_list[i][1] for i in range(K_VALUE)]
 is_not_stable = True
 
 while is_not_stable:
@@ -186,10 +228,11 @@ for fin_col in k_elements:
         for c_loc in color_loc_dict[c]:
             pix[c_loc[0], c_loc[1]] = k_fin_round
 
-#img = dithering(img.copy(), img)
-
 # adding color palette at the bottom of the image
 color_palette = list(set(pix_list))
+
+img = dithering_new(color_palette, img)
+
 box = img.size[0] // K_VALUE
 
 color_images = Image.new("RGB", (img.size[0], img.size[1] + box))
@@ -205,9 +248,33 @@ for i in range(K_VALUE):
         for l in range(box):
             new_img[w + (i * box), l + img.size[1]] = color_palette[i]
 
+
 color_images.show()
 color_images.save("kmeansout.png")
 
 end = perf_counter()
 
 print("Total time taken: " + str(end - start))
+
+
+#k_means_plus_plus(K_VALUE) - my implementation is really slow, so I tried something else
+
+# ORIGINAL - random.sample(color_count.keys(), K_VALUE)
+    # FOR A K_VALUE OF 8
+    # 1 - 34.92219294211827 seconds
+    # 2 - 63.89755193796009 seconds
+    # 3 - 25.54147535492666 seconds
+    # 4 - 59.9034635219723 seconds
+    # 5 - 30.345773437060416 seconds
+    # AVERAGE - 42.922 seconds
+# This is clearly very inconsistent since the keys are being chosen at random. Sometimes it's really fast, other times it's very slow.
+
+# NEW - [frequency_list[i][1] for i in range(K_VALUE)]
+    # FOR A K_VALUE OF 8
+    # 1 - 33.58253590599634
+    # 2 - 34.13189347810112
+    # 3 - 34.66111612692475
+    # 4 - 37.69707487919368
+    # 5 - 34.6903032050468
+    # AVERAGE - 34.952 seconds
+# Extremely consistent - chooses the same values each time when it runs. This is because it chooses the most frequently ocurring RGB values in the picture.
