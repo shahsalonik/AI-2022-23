@@ -87,17 +87,17 @@ def print_final_tree(tree):
     print("* " + tree.name + "?")
     print_final_tree_rec(tree, 1)
 
-def print_final_tree_rec(tree, num_indents):
+def print_final_tree_rec(tree, depth):
     #https://stackoverflow.com/questions/55648799/append-to-previous-line
     for key, val in tree.children.items():
-        indent = "\t" * num_indents
-        print(indent + "* " + str(key), end="")
+        depth_print = "\t" * depth
+        print(depth_print + "* " + str(key), end="")
         
         if val.children != None:
-            indent = "\t" * num_indents
+            depth_print = "\t" * depth
             print()
-            print(indent + "  * " + str(val.name) + "?")
-            print_final_tree_rec(val, num_indents + 1)
+            print(depth_print + "  * " + str(val.name) + "?")
+            print_final_tree_rec(val, depth + 1)
         else:
             print(" --> " + str(val))
 
@@ -108,3 +108,8 @@ with open("treeout.txt", "w") as f:
     sys.stdout = f
     print_final_tree(dec_tree)
     sys.stdout = original_stout
+
+# I checked with Diana and our mushroom tree outputs are the same. 
+# I think that the tree is really only useful if you know what the mushroom is and want to verify that the tree works, if that makes sense. 
+# A lot of the descriptions for each of these could be extremely subjective, especially for the scents. 
+# Even for the colors, I don't think many people know the difference between brown and chocolate, so it's good that they're both edible.
