@@ -11,7 +11,7 @@ class TreeNode:
             return str(self.name)
         return str(self.name) + " --> " + str(self.children)
 
-filename = "play_tennis.csv"
+filename = sys.argv[1]
 column_names, data = [], []
 
 with open(filename, "r") as f:
@@ -23,13 +23,13 @@ with open(filename, "r") as f:
             column_names = line.strip("\n").split(",")
             count += 1
     
-print(column_names, data)
-input()
+#print(column_names, data)
+#input()
 
 def make_tree(cols, data_info):
     max_info_gain = 0
     max_key = cols[0]
-    for key in cols[:-1]:
+    for key in cols:
         temp_gain = calc_info_gain(cols, data_info, key)
         if temp_gain > max_info_gain:
             max_info_gain = temp_gain
@@ -79,8 +79,8 @@ def calc_info_gain(cols, data_info, key):
 
     entropy_sum = 0
 
-    for e in range(len(entropy_list)):
-        entropy_sum += ((freq_list[e] / len(data_info)) * entropy_list[e])
+    for ent_ind in range(len(entropy_list)):
+        entropy_sum += ((freq_list[ent_ind] / len(data_info)) * entropy_list[ent_ind])
     return orig_entropy - entropy_sum
 
 def print_final_tree(tree):
@@ -99,7 +99,12 @@ def print_final_tree_rec(tree, num_indents):
             print(indent + "  * " + str(val.name) + "?")
             print_final_tree_rec(val, num_indents + 1)
         else:
-            print("--> " + str(val))
+            print(" --> " + str(val))
 
-dec_tree = make_tree(column_names, data)
-print_final_tree(dec_tree)
+dec_tree = make_tree(column_names[:-1], data)
+
+original_stout = sys.stdout
+with open("treeout.txt", "w") as f:
+    sys.stdout = f
+    print_final_tree(dec_tree)
+    sys.stdout = original_stout
