@@ -6,14 +6,13 @@ class TreeNode:
         self.name = name
         self.children = children
     
-    def __print_tree__(self):
+    def __repr__(self) -> str:
         if self.children == None:
-            return str(self.label)
-        else:
-            return str(self.label) + "-->" + str(self.children)
+            return str(self.name)
+        return str(self.name) + " --> " + str(self.children)
 
 filename = "play_tennis.csv"
-column_names, data = "", []
+column_names, data = [], []
 
 with open(filename, "r") as f:
     count = 0
@@ -21,15 +20,16 @@ with open(filename, "r") as f:
         if count != 0:
             data.append(line.strip("\n").split(","))
         else:
-            column_names = line.strip("\n")
+            column_names = line.strip("\n").split(",")
             count += 1
     
 print(column_names, data)
+input()
 
 def make_tree(cols, data_info):
     max_info_gain = 0
     max_key = cols[0]
-    for key in cols:
+    for key in cols[:-1]:
         temp_gain = calc_info_gain(cols, data_info, key)
         if temp_gain > max_info_gain:
             max_info_gain = temp_gain
@@ -39,7 +39,7 @@ def make_tree(cols, data_info):
     val = set(val)
     tree_node.children = {}
     for v in val:
-        new_data_info = new_data(cols, data_info, key, v)
+        new_data_info = new_data(cols, data_info, max_key, v)
         
         if calc_entropy(new_data_info) == 0:
             tree_node.children[v] = TreeNode(new_data_info[0][-1])
@@ -66,14 +66,19 @@ def calc_entropy(cols):
 
 def calc_info_gain(cols, data_info, key):
     orig_entropy = calc_entropy(data_info)
+
     val = [x[cols.index(key)] for x in data_info]
     val = set(val)
+
     entropy_list, freq_list = [], []
+
     for v in val:
         new_data_info = new_data(cols, data_info, key, v)
         entropy_list.append(calc_entropy(new_data_info))
         freq_list.append(len(new_data_info))
+
     entropy_sum = 0
+
     for e in range(len(entropy_list)):
         entropy_sum += ((freq_list[e] / len(data_info)) * entropy_list[e])
     return orig_entropy - entropy_sum
@@ -83,11 +88,15 @@ def print_final_tree(tree):
     print_final_tree_rec(tree, 1)
 
 def print_final_tree_rec(tree, num_indents):
+    #https://stackoverflow.com/questions/55648799/append-to-previous-line
     for key, val in tree.children.items():
-        print("\t" * num_indents + " *" + str(key))
+        indent = "\t" * num_indents
+        print(indent + "* " + str(key), end="")
         
         if val.children != None:
-            print("\t" * (num_indents + 1) + "* " + str(val.name) + "?")
+            indent = "\t" * num_indents
+            print()
+            print(indent + "  * " + str(val.name) + "?")
             print_final_tree_rec(val, num_indents + 1)
         else:
             print("--> " + str(val))
