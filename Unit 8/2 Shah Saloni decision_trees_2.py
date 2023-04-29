@@ -1,6 +1,7 @@
 import sys
 from math import log
 from matplotlib import pyplot
+import random
 
 class TreeNode:
     def __init__(self, name = None, children = None):
@@ -102,10 +103,39 @@ def print_final_tree_rec(tree, depth):
         else:
             print(" --> " + str(val))
 
-dec_tree = make_tree(column_names[:-1], data)
+# PART 2 METHODS
 
+def drop_rows(data_info, symbol):
+    new_data_info = []
+    for i in data_info:
+        if symbol not in i:
+            new_data_info.append([x for x in i])
+    return new_data_info
+
+#dec_tree = make_tree(column_names[:-1], data)
+
+data = drop_rows(data, "?")
+
+test_rows = 50
+
+test = data[:test_rows]
+train = data[test_rows:]
+
+for size in range(5, 182):
+    random_rows = random.sample(train, size)
+    check_class = [x[-1] for x in random_rows]
+    if len(set(check_class)) != 1:
+        break
+    else:
+        dec_tree = make_tree(column_names[:-1], random_rows)
+        correct_class = 0
+        for f in test:
+            pass
+
+'''
 original_stout = sys.stdout
 with open("treeout.txt", "w") as f:
     sys.stdout = f
     print_final_tree(dec_tree)
     sys.stdout = original_stout
+'''
