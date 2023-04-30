@@ -1,6 +1,6 @@
 import sys
 from math import log
-from matplotlib import pyplot
+import matplotlib.pyplot as pyplot
 import random
 
 class TreeNode:
@@ -13,6 +13,7 @@ class TreeNode:
             return str(self.name)
         return str(self.name) + " --> " + str(self.children)
 
+#sys.argv[1]
 filename = sys.argv[1]
 column_names, data = [], []
 
@@ -29,20 +30,24 @@ with open(filename, "r") as f:
 #input()
 
 def make_tree(cols, data_info):
-    max_info_gain = 0
+    max_info_gain = calc_info_gain(cols, data_info, cols[0])
     max_key = cols[0]
+    info_gain_sum = 0
     for key in cols:
         temp_gain = calc_info_gain(cols, data_info, key)
+        info_gain_sum += temp_gain
         if temp_gain > max_info_gain:
             max_info_gain = temp_gain
             max_key = key
     tree_node = TreeNode(max_key)
+    if info_gain_sum == 0:
+        random_choice = random.choice([i[-1] for i in data_info])
+        return TreeNode(random_choice)
     val = [x[cols.index(max_key)] for x in data_info]
     val = set(val)
     tree_node.children = {}
     for v in val:
-        new_data_info = new_data(cols, data_info, max_key, v)
-        
+        new_data_info = split_data(cols, data_info, max_key, v)
         if calc_entropy(new_data_info) == 0:
             tree_node.children[v] = TreeNode(new_data_info[0][-1])
         else:
@@ -75,7 +80,7 @@ def calc_info_gain(cols, data_info, key):
     entropy_list, freq_list = [], []
 
     for v in val:
-        new_data_info = new_data(cols, data_info, key, v)
+        new_data_info = split_data(cols, data_info, key, v)
         entropy_list.append(calc_entropy(new_data_info))
         freq_list.append(len(new_data_info))
 
@@ -107,35 +112,209 @@ def print_final_tree_rec(tree, depth):
 
 def drop_rows(data_info, symbol):
     new_data_info = []
+    count = 0
     for i in data_info:
         if symbol not in i:
-            new_data_info.append([x for x in i])
+            count += 1
+            row = [x for x in i]
+            new_data_info.append(row)
     return new_data_info
+
+def drop_cols(data_info, ind):
+    new_data_info = []
+    for i in data_info:
+        drop_col = i[:ind] + i[ind + 1:]
+        new_data_info.append(drop_col)
+    return new_data_info
+
+def classify_feature_vector(vector, tree, categories):
+    if tree.children != None:
+        f_vector = tree.name
+        val = vector[categories.index(f_vector)]
+        if val not in tree.children:
+            val_list = list(tree.children.values())
+            new_cat = random.choice(val_list)
+        else:
+            new_cat = tree.children[val]
+        return classify_feature_vector(vector, new_cat, categories)
+    elif tree.children == None:
+        return tree.name
+
+def fill_missing_info(data_info, symbol):
+    new_data_info = []
+    for i in data_info:
+        new_point = []
+        for x in i:
+            if x != symbol:
+                new_point.append(x)
+            else:
+                col = [z[i.index(x)] for z in data_info]
+                col_set = set(col)
+                max_freq = 0
+                key = col[0]
+                for val in col_set:
+                    check = col.count(val)
+                    if check > max_freq:
+                        max_freq = check
+                        key = val
+                new_point.append(key)
+        new_data_info.append(new_point)
+    return new_data_info
+
+def split_data(cols, data_info, vector, symbol):
+    new_data_info = []
+    for i in data_info:
+        if i[cols.index(vector)] == symbol:
+            new_data_info.append(i)
+    return new_data_info
+
 
 #dec_tree = make_tree(column_names[:-1], data)
 
-data = drop_rows(data, "?")
-
+# pt 1
+'''
 test_rows = 50
 
-test = data[:test_rows]
-train = data[test_rows:]
+nonmissing = drop_rows(data, "?")
+nonmissing = drop_cols(nonmissing, 0)
+column_names.pop(0)
+
+train = nonmissing[: len(nonmissing) - test_rows]
+test = nonmissing[len(nonmissing) - test_rows:]
+
+size_acc_list = []
 
 for size in range(5, 182):
     random_rows = random.sample(train, size)
-    check_class = [x[-1] for x in random_rows]
-    if len(set(check_class)) != 1:
-        break
-    else:
-        dec_tree = make_tree(column_names[:-1], random_rows)
-        correct_class = 0
-        for f in test:
-            pass
+    check_party = set([x[-1] for x in random_rows])
+    while len(check_party) < 2:
+        random_rows = random.sample(train, size)
+        check_party = set([x[-1] for x in random_rows])
+    dec_tree = make_tree(column_names[:-1], random_rows)
+    correct_class = 0
+    for f in test:
+        if classify_feature_vector(f, dec_tree, column_names) == f[-1]:
+            correct_class += 1
+    percent_accuracy = correct_class / len(test)
+    size_acc_list.append((size, percent_accuracy))
 
+x_values = [x[0] for x in size_acc_list]
+y_values = [y[1] for y in size_acc_list]
+'''
+
+# pt 2
+'''
+nonmissing = fill_missing_info(data, "?")
+nonmissing = drop_cols(nonmissing, 0)
+column_names.pop(0)
+
+train = nonmissing[: len(nonmissing) - test_rows]
+test = nonmissing[len(nonmissing) - test_rows:]
+
+size_acc_list = []
+
+for size in range(5, 385):
+    random_rows = random.sample(train, size)
+    check_party = [x[-1] for x in random_rows]
+    check_party = set(check_party)
+    while len(check_party) < 2:
+        if len(check_party) < 2:
+            random_rows = random.sample(train, size)
+            check_party.clear()
+    dec_tree = make_tree(column_names[:-1], random_rows)
+    correct_class = 0
+    for f in test:
+        if classify_feature_vector(f, dec_tree, column_names) == f[-1]:
+            correct_class += 1
+    percent_accuracy = correct_class / len(test)
+    size_acc_list.append((size, percent_accuracy))
+    
+
+x_values = [x[0] for x in size_acc_list]
+y_values = [y[1] for y in size_acc_list]
+'''
+
+# pt 3
+'''
+# nursery: 500
+# connect 4: 7000
+test_rows = 7000
+
+random.shuffle(data)
+
+train = data[: len(data) - test_rows]
+test = data[len(data) - test_rows:]
+
+
+size_acc_list = []
+
+# nursery: 500, 12000, 500
+# connect 4: 5000, 60000, 5000
+for size in range(5000, 60000, 5000):
+    random_rows = random.sample(train, size)
+    check_party = [x[-1] for x in random_rows]
+    check_party = set(check_party)
+    while len(check_party) < 2:
+        if len(check_party) < 2:
+            random_rows = random.sample(train, size)
+            check_party.clear()
+    dec_tree = make_tree(column_names[:-1], random_rows)
+    correct_class = 0
+    for f in test:
+        if classify_feature_vector(f, dec_tree, column_names) == f[-1]:
+            correct_class += 1
+    percent_accuracy = correct_class / len(test)
+    size_acc_list.append((size, percent_accuracy))
+'''
+
+# formatting for submission
+
+test_rows = sys.argv[2]
+
+train = data[: len(data) - test_rows]
+test = data[len(data) - test_rows:]
+
+size_acc_list = []
+
+for size in range(sys.argv[3], sys.argv[4], sys.argv[5]):
+    random_rows = random.sample(train, size)
+    check_party = [x[-1] for x in random_rows]
+    check_party = set(check_party)
+    while len(check_party) < 2:
+        if len(check_party) < 2:
+            random_rows = random.sample(train, size)
+            check_party.clear()
+    dec_tree = make_tree(column_names[:-1], random_rows)
+    correct_class = 0
+    for f in test:
+        if classify_feature_vector(f, dec_tree, column_names) == f[-1]:
+            correct_class += 1
+    percent_accuracy = correct_class / len(test)
+    size_acc_list.append((size, percent_accuracy))
+
+x_values = [x[0] for x in size_acc_list]
+y_values = [y[1] for y in size_acc_list]
+
+pyplot.scatter(x_values, y_values)
+pyplot.xlabel("Size")
+pyplot.ylabel("Accuracy")
+pyplot.title("Accuracy vs. Size")
+pyplot.show()  
+
+# from dec trees 1
 '''
 original_stout = sys.stdout
 with open("treeout.txt", "w") as f:
     sys.stdout = f
     print_final_tree(dec_tree)
     sys.stdout = original_stout
+'''
+
+# for plotting
+'''
+pyplot.scatter(x_values, y_values)
+pyplot.xlabel("Size")
+pyplot.ylabel("Accuracy")
+pyplot.title("Accuracy vs. Size")
+pyplot.show()  
 '''
