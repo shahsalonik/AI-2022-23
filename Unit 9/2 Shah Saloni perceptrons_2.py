@@ -58,11 +58,10 @@ def step(num):
         return 0
 
 def dot_product(x, y):
-    if len(x) == len(y):
-        dot_product_result = 0
-        for d in range(len(x)):
-            dot_product_result += x[d] * y[d]
-        return dot_product_result
+    dot_product_result = 0
+    for d in range(len(x)):
+        dot_product_result += x[d] * y[d]
+    return dot_product_result
 
 def perceptron(A, w, b, x):
     return A(dot_product(w, x) + b)
@@ -88,9 +87,9 @@ def gen_all_truth_tables(bits):
         truth_list.append(truth_table(bits, n))
     return truth_list
 
-def run_sample(truth_table_inp, n):
-    perceptron = epoch_algorithn(step, [0] * n, truth_table_inp, 0, 1, 100)
-    percent_accurate = check(n, perceptron[0], perceptron[1], truth_table_inp)
+def run_sample(truth_table_inp, bit):
+    perceptron = epoch_algorithm(step, [0] * bit, truth_table_inp, 0, 1, 100)
+    percent_accurate = check(bit, perceptron[0], perceptron[1], truth_table_inp)
     return perceptron, percent_accurate
 
 def part_one(n):
@@ -103,11 +102,12 @@ def part_one(n):
             count += 1
     return len(truth_list), count
 
-
-def epoch_algorithn(A, w, t_t, b, learn_rate, num_epochs):
+def epoch_algorithm(A, w, t_t, b, learn_rate, num_epochs):
     final_epochs = []
+    #print("truth table", t_t)
     for i in range(num_epochs):
         for key, val in t_t.items():
+            #print("KEY", key, "w is", w)
             perceps = perceptron(A, w, b, key)
             diff = val - perceps 
             for elem in range(len(w)):
@@ -123,7 +123,7 @@ def epoch_algorithn(A, w, t_t, b, learn_rate, num_epochs):
 #print(number_modeled, "possible functions;", correct_number_modeled, "can be correctly modeled.")
 
 first_truth_table = truth_table(input_bits, input_n)
-perceptron_run, acc_percent = run_sample(first_truth_table, input_n)
+perceptron_run, acc_percent = run_sample(first_truth_table, input_bits)
 print("Final weight vector:", perceptron_run[0])
 print("Final bias:", perceptron_run[1])
 print("Accuracy:", acc_percent)
