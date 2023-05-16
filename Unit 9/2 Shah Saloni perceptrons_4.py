@@ -180,7 +180,7 @@ def challenge_three():
 input_info = sys.argv[1:]
 
 if len(input_info) == 1:
-    challenge_one(ast.literal_eval(input_info))
+    challenge_one(ast.literal_eval(input_info[0]))
 elif len(input_info) == 2:
     challenge_two(float(input_info[0]), float(input_info[1]))
 elif len(input_info) == 0:
