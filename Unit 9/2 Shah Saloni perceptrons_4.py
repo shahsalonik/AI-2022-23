@@ -152,37 +152,43 @@ def circle(x, y):
         return 0
 
 def challenge_three():
-    weights3 = [None, np.array([[1, -1, 1, -1], [1, 1, -1, -1]]), np.array([[1], [1], [1], [1]])]
-    
-    bias = 1.457
-    biases3 = [None, np.array([[bias, bias, bias, bias]]), np.array([[-3]])]
-
     points = []
 
     for i in range(500):
-        points.append([[np.random.uniform(-1,1), np.random.uniform(-1,1)]])
+        points.append([[np.random.uniform(-1, 1), np.random.uniform(-1, 1)]])
+
+    bias1 = 1.35
+    weights3 = [None, np.array([[1, -1, 1, -1], [1, 1, -1, -1]]), np.array([[1], [1], [1], [1]])]
+    biases3 = [None, np.array([[bias1, bias1, bias1, bias1]]), np.array([[-3]])]
 
     accuracy_count = 0
 
     for p in points:
         output = p_net(sigmoid, weights3, biases3, p)
-        if output[0][0] >= 0.05:
+        if output[0][0] >= 0.5:
             p_val = 1
         else:
             p_val = 0
-        real_val = circle(p[0][0], p[0][1])
-        if real_val == 1:
-            print("INSIDE")
-        else:
-            print( "outside")
-        if p_val == real_val:
+        circ_val = circle(p[0][0], p[0][1])
+        if p_val == circ_val:
             accuracy_count += 1
+        else:
+            print("(" + str(p[0][0]) + ", " + str(p[0][1]) + ")")
 
-    print("Accuracy:", (accuracy_count * 100 / 500))
+    print("Accuracy:", accuracy_count * 100 / 500)
+
+input_info = sys.argv[1:]
+
+if len(input_info) == 1:
+    challenge_one(ast.literal_eval(input_info))
+elif len(input_info) == 2:
+    challenge_two(float(input_info[0]), float(input_info[1]))
+elif len(input_info) == 0:
+    challenge_three()
 
 #input_tuple = ast.literal_eval(sys.argv[1])
 #challenge_one(input_tuple)
 #challenge_two(0.2304, 0.93098630)
-challenge_three()
+#challenge_three()
 
 #output = p_net(A_vec, weights, biases, input)
