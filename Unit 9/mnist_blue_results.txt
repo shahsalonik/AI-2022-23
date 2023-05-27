@@ -1,0 +1,7 @@
+Network Architecture: [784, 300, 100, 10]
+
+Percent misclassified in TRAINING: 5.73%
+
+Percent misclassified in TESTING: 5.78%
+
+# Epochs of training: 5
