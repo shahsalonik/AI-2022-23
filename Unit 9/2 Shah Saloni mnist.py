@@ -5,7 +5,6 @@ import math
 import random
 import csv
 
-# challenge 2
 def step(n): 
     if n > 0.5:
         return 1
@@ -22,13 +21,6 @@ def sigmoid_deriv(num):
     A = np.vectorize(sig_deriv_vec)
     return A(num)
 
-def circle(x, y):
-    mag = math.sqrt((x**2) + (y**2))
-    if mag < 1:
-        return 1
-    else:
-        return 0
-
 def create_network(dims):
     weights = [None]
     biases = [None]
@@ -37,15 +29,16 @@ def create_network(dims):
         biases.append(2 * np.random.rand(1, dims[d]) - 1)
     return weights, biases
 
-
 # TRAINING THE NETWORK
 ep_count = 0
 
+# network architecture
 weights, biases = create_network([784, 300, 100, 10])
 training_set = open("mnist_train.csv")
 training_set = csv.reader(training_set)
 
-output_file = open("mnist_w_b.txt", "w")
+weights_output_file = open("mnist_w.pkl", "w")
+biases_output_file = open("mnist_b.pkl", "w")
 
 for nums in training_set:
     classify_list = []
@@ -75,11 +68,12 @@ for nums in training_set:
         weights[l_n2] = weights[l_n2] + (learning_rate * (a[l_n2 - 1].T @ delta[l_n2]))
     
     ep_count += 1
-    print(ep_count)
-    if ep_count % 30000 == 0:
-        output_file.write(str(weights))         
-        output_file.write(str(biases)) 
+    #print(ep_count)
+    if ep_count % 60000 == 0:
+        weights_output_file.write(str(weights))         
+        biases_output_file.write(str(biases)) 
         break
+
 
 #TESTING NETWORK TRAINING ACCURACY
 correct_classif = 0
@@ -87,6 +81,15 @@ total = 0
 
 training_set = open("mnist_train.csv")
 training_set = csv.reader(training_set)
+load_file = open("mnist_w_b.pkl", "w")
+output_file = open("to_write.txt", "w")
+
+
+weights, biases = [], []
+for line in load_file:
+    line = line.split()
+    weights = line[0]
+    biases = line[1]
 
 for vals in training_set:
     classify_list = []
@@ -99,9 +102,9 @@ for vals in training_set:
     a = [np.array([[0]])] * len(weights)
     a[0] = np.array([classify_list]) / 255
 
-    for i in range(1, len(weights)):
-        dot = (a[i - 1] @ weights[i]) + biases[i]
-        a[i] = sigmoid(dot)
+    for l in range(1, len(weights)):
+        dot = (a[l - 1] @ weights[l]) + biases[l]
+        a[l] = sigmoid(dot)
 
     get_max_num_list = list(a[-1][0])
     max_num = get_max_num_list.index(max(get_max_num_list))
@@ -110,35 +113,32 @@ for vals in training_set:
         correct_classif += 1
     total += 1
     print("Training Accuracy: " + str(correct_classif * 100 / total))
-output_file.write(str(correct_classif * 100 / total))
+output_file.write("training classification:" + str(correct_classif * 100 / total) + "\n")
 
 #TESTING OVERALL ACCURACY
-testing_correct_class = 0
-total_test = 0
+testing_correct_classif = 0
+test_total = 0
 
-testing_set = open("mnist_train.csv")
+testing_set = open("mnist_test.csv")
 testing_set = csv.reader(testing_set)
 
 for vals in testing_set:
     classify_list = []
-    for c in nums:
+    for c in vals:
         classify_list.append(int(c))
     actual_num = classify_list.pop(0)
-    y = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    y[actual_num] = 1
 
     a = [np.array([[0]])] * len(weights)
     a[0] = np.array([classify_list]) / 255
 
-    for x in range(1, len(weights)):
-        dot_product = (a[l - 1] @ weights[l]) + biases[l]
-        a[x] = sigmoid(dot_product)
-    
+    for l in range(1, len(weights)):
+        dot = (a[l - 1] @ weights[l]) + biases[l]
+        a[l] = sigmoid(dot)
+
     get_max_num_list = list(a[-1][0])
     max_num = get_max_num_list.index(max(get_max_num_list))
 
     if max_num == actual_num:
-        testing_correct_class += 1
-    total_test += 1
-    print("Testing set accuracy:" + str(testing_correct_class * 100 / total_test))
-output_file.write(str(testing_correct_class * 100 / total_test))
+        testing_correct_classif += 1
+    test_total += 1
+output_file.write("testing classification:" + str(testing_correct_classif * 100 / test_total))
